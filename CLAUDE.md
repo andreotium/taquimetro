@@ -13,7 +13,7 @@ Taquímetro: app web de ranking colaborativo y en vivo de taquerías de CDMX, co
 - `docs/bitacora.md` es la bitácora personal de André. No escribas en ella.
 - Todo el proyecto (docs, datos, UI y comentarios) está en español.
 
-Estado actual: fases 1 a 3 de `docs/plan.md` hechas. La migración `supabase/migrations/20261021174405_esquema_inicial.sql` está aplicada y la semilla cargada. Vitest corre pruebas del bayesiano, de RLS y del trigger en `tests/`. La UI sigue siendo la plantilla de `create-next-app`. Los clientes de Supabase para la app están en `lib/supabase/` (`cliente.ts` para navegador, `servidor.ts` para servidor); leen `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` de `.env.local` (plantilla en `.env.example`).
+Estado actual: fases 1 a 3 y tareas 4.1 a 4.3 de `docs/plan.md` hechas. La migración `supabase/migrations/20261021174405_esquema_inicial.sql` está aplicada y la semilla cargada. Vitest corre pruebas del bayesiano, de RLS, del trigger y del orden del ranking en `tests/`. La página principal (`app/page.tsx`) lee el ranking en el servidor, lo ordena con `lib/ranking.ts` y lo pasa a `components/taquimetro.tsx` (columnas en computadora, pestañas en celular) y `components/detalle.tsx`. Los clientes de Supabase para la app están en `lib/supabase/` (`cliente.ts` para navegador, `servidor.ts` para servidor); leen `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` de `.env.local` (plantilla en `.env.example`).
 
 ## Cómo trabajar en este repo
 

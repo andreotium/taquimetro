@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Taquimetro } from "@/components/taquimetro";
 import { ordenarRanking } from "@/lib/ranking";
 import { crearClienteServidor } from "@/lib/supabase/servidor";
 
@@ -6,42 +7,43 @@ import { crearClienteServidor } from "@/lib/supabase/servidor";
 async function Ranking() {
   const supabase = await crearClienteServidor();
   const [taquerias, agregados] = await Promise.all([
-    supabase.from("taquerias").select("id, nombre"),
-    supabase.from("agregados_taqueria").select("taqueria_id, votos, puntaje_bayesiano"),
+    supabase.from("taquerias").select("id, nombre, alcaldia"),
+    supabase
+      .from("agregados_taqueria")
+      .select(
+        "taqueria_id, votos, puntaje_bayesiano, prom_salsa, prom_tortilla, prom_carne, precio_promedio, porcentaje_copia",
+      ),
   ]);
 
   // Los tres mensajes de error completos llegan en la tarea 4.4.
-  if (taquerias.error || agregados.error) return <p>No se pudo consultar el ranking.</p>;
+  if (taquerias.error || agregados.error) return <p className="p-6">No se pudo consultar el ranking.</p>;
 
   const agregadoPorId = new Map(agregados.data.map((a) => [a.taqueria_id, a]));
   const filas = ordenarRanking(
-    taquerias.data.map((t) => ({
-      id: t.id,
-      nombre: t.nombre,
-      votos: agregadoPorId.get(t.id)?.votos ?? 0,
-      puntaje: agregadoPorId.get(t.id)?.puntaje_bayesiano ?? null,
-    })),
+    taquerias.data.map((t) => {
+      const a = agregadoPorId.get(t.id);
+      return {
+        id: t.id,
+        nombre: t.nombre,
+        alcaldia: t.alcaldia,
+        votos: a?.votos ?? 0,
+        puntaje: a?.puntaje_bayesiano ?? null,
+        promSalsa: a?.prom_salsa ?? null,
+        promTortilla: a?.prom_tortilla ?? null,
+        promCarne: a?.prom_carne ?? null,
+        precioPromedio: a?.precio_promedio ?? null,
+        porcentajeCopia: a?.porcentaje_copia ?? null,
+      };
+    }),
   );
 
-  return (
-    <ol>
-      {filas.map((f) => (
-        <li key={f.id}>
-          {f.nombre}: {f.puntaje === null ? "sin votos" : `${f.puntaje.toFixed(2)} (${f.votos} votos)`}
-          {f.pocosVotos && " · pocos votos"}
-        </li>
-      ))}
-    </ol>
-  );
+  return <Taquimetro taquerias={filas} />;
 }
 
 export default function Home() {
   return (
-    <main>
-      <h1>Taquímetro</h1>
-      <Suspense fallback={<p>Cargando...</p>}>
-        <Ranking />
-      </Suspense>
-    </main>
+    <Suspense fallback={<p className="p-6 text-tenue">Cargando el ranking...</p>}>
+      <Ranking />
+    </Suspense>
   );
 }

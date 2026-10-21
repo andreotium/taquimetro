@@ -9,7 +9,8 @@ export type FilaRanking = {
 
 // Puntaje de mayor a menor; si empatan, más votos primero; si siguen empatadas, por nombre.
 // Sin votos: al final, por nombre. "Pocos votos" es 1 o 2; con 0 se muestra "sin votos".
-export function ordenarRanking(filas: FilaRanking[]) {
+// Conserva los campos extra de cada fila (por ejemplo, los del detalle).
+export function ordenarRanking<T extends FilaRanking>(filas: T[]) {
   return [...filas]
     .sort((a, b) => {
       if (a.puntaje === null || b.puntaje === null) {

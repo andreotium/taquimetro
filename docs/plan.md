@@ -36,9 +36,9 @@ Reglas:
 
 | # | Qué se hace | Archivos | Cómo se comprueba |
 | --- | --- | --- | --- |
-| 4.1 | Instalar `@supabase/ssr` y pasar `@supabase/supabase-js` a `dependencies`; clientes para navegador y servidor. [André] crea `.env.local` con URL y llave pública a partir de `.env.example` | `package.json`, `lib/supabase/`, `.env.example`, `.gitignore` | `npm run build` pasa; `git status` no muestra `.env.local` |
-| 4.2 | Lectura del ranking: orden por bayesiano, desempate por votos y nombre, sin votos al final por nombre, etiqueta "pocos votos" | `app/page.tsx`, `components/` | `npm run dev`: las 20 aparecen en orden alfabético (todas sin votos) |
-| 4.3 | Vista: en computadora ranking y detalle lado a lado (espacio para el mapa); en celular pestañas y detalle en su vista | `app/layout.tsx`, `app/page.tsx`, `components/` | Revisión en el navegador a ancho de computadora y de celular |
+| 4.1 | **Hecha.** Instalar `@supabase/ssr` y pasar `@supabase/supabase-js` a `dependencies`; clientes para navegador y servidor. [André] crea `.env.local` con URL y llave pública a partir de `.env.example` | `package.json`, `lib/supabase/`, `.env.example`, `.gitignore` | `npm run build` pasa; `git status` no muestra `.env.local` |
+| 4.2 | **Hecha.** Lectura del ranking: orden por bayesiano, desempate por votos y nombre, sin votos al final por nombre, etiqueta "pocos votos" | `app/page.tsx`, `components/` | `npm run dev`: las 20 aparecen en orden alfabético (todas sin votos) |
+| 4.3 | **Hecha.** Vista: en computadora ranking, espacio para el mapa y detalle lado a lado; en celular pestañas y detalle en su vista. El detalle muestra puntaje, votos, promedios, precio promedio, porcentaje de copia y la etiqueta "pocos votos" | `app/layout.tsx`, `app/page.tsx`, `components/` | Revisión en el navegador a ancho de computadora y de celular |
 | 4.4 | Errores visibles: "no hay datos", "no se encontró" y "no se pudo consultar" | `components/` | Con una URL de Supabase falsa en `.env.local` aparece "no se pudo consultar"; al restaurarla, el ranking vuelve |
 
 ## Fase 5. Login y calificación
@@ -47,7 +47,7 @@ Reglas:
 | --- | --- | --- | --- |
 | 5.1 | Formulario de correo al tocar "Calificar" y ruta de regreso que inicia la sesión, ignora `next` y redirige a `/` | `components/`, `app/auth/callback/` | En local, el enlace del correo de André lo deja en `/` con sesión; agregar `?next=https://ejemplo.com` no cambia el destino |
 | 5.2 | Formulario de calificación: crear con inserción y editar con `.update()` | `components/` | Calificar una taquería, editarla y ver en el panel una sola fila con los valores nuevos |
-| 5.3 | Detalle con los agregados y la etiqueta "pocos votos" | `components/` | Tras calificar, el detalle muestra 1 voto, los promedios y "pocos votos" al recargar |
+| 5.3 | El detalle (hecho en 4.3) refleja la calificación nueva al recargar | `components/` | Tras calificar, el detalle muestra 1 voto, los promedios y "pocos votos" al recargar |
 
 ## Fase 6. Despliegue en Vercel
 
