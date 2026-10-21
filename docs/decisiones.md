@@ -66,7 +66,7 @@ Las decisiones salieron de la entrevista con `/the-architect` del 20 de octubre 
 
 ## D11. Semilla tal cual
 
-- Decisión: la migración de semilla usa las 20 taquerías de `supabase/seed/datos.csv` sin verificarlas contra otra fuente. La guía pide buscarlas en el mapa del chat, y así se hizo.
+- Decisión: la semilla (`supabase/seed.sql`, que se aplica con `supabase db push --include-seed`) usa las 20 taquerías de `supabase/seed/datos.csv` sin verificarlas contra otra fuente. La guía pide buscarlas en el mapa del chat, y así se hizo.
 - Descartado: scripts de Nominatim y CSV de revisión.
 
 ## D12. Diseño minimalista sin mockup

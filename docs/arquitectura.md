@@ -63,7 +63,7 @@ Restricción única en (user_id, taqueria_id): editar actualiza la misma fila.
 
 Como "exponer tablas nuevas" está apagado, cada tabla necesita dos cosas: el GRANT (qué operaciones puede intentar cada rol) y la política RLS (qué filas puede tocar). Roles: `anon` (sin sesión) y `authenticated` (con sesión).
 
-- **taquerias**: GRANT de lectura a `anon` y `authenticated`. Política: todos leen todas las filas. Sin GRANT ni política de escritura; la semilla entra por migración.
+- **taquerias**: GRANT de lectura a `anon` y `authenticated`. Política: todos leen todas las filas. Sin GRANT ni política de escritura; la semilla entra con `supabase/seed.sql`, que se aplica con `supabase db push --include-seed`.
 - **calificaciones**: sin GRANT para `anon`. A `authenticated`:
   - GRANT de lectura de todas las columnas.
   - GRANT de inserción solo en `taqueria_id`, `salsa`, `tortilla`, `carne`, `precio` y `copia`; `user_id` y `creada_en` se llenan solos.
@@ -132,7 +132,8 @@ app/
 components/               ranking, mapa (Leaflet), detalle, formulario de calificación, fotos, login
 lib/supabase/             clientes de @supabase/ssr para navegador y servidor (solo llave pública)
 supabase/
-  migrations/             tablas, RLS, GRANT, función, trigger, bucket, Realtime, semilla
+  migrations/             tablas, RLS, GRANT, función, trigger, bucket, Realtime
+  seed.sql                semilla: 20 taquerías y sus agregados en 0 (db push --include-seed)
   seed/datos.csv          las 20 taquerías
 tests/                    pruebas de Vitest (bayesiano y RLS)
 .env.local                URL y llave pública de Supabase (ignorado por git)
