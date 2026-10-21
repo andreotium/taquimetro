@@ -16,21 +16,21 @@ Reglas:
 | 1.1 | **Hecha.** Migración única con toda la base: las 4 tablas, GRANT por columna, RLS, función bayesiana, trigger de agregados (inserción, edición y borrado), bucket `fotos` (público, 5 MB, JPG y PNG) con sus políticas y Realtime en `agregados_taqueria`. [André] la aplicó | `supabase/migrations/20261021174405_esquema_inicial.sql` | En el panel: las 4 tablas con RLS; límites del bucket correctos y políticas filtradas por `fotos`; solo `agregados_taqueria` en la publicación de Realtime; el advisor de seguridad no marca tablas sin RLS ni funciones por `search_path` |
 | 1.2 | **Hecha.** Semilla: 20 taquerías desde el CSV y 20 filas de agregados con 0 votos; se puede correr dos veces sin duplicar. [André] la aplicó con `supabase db push --include-seed` | `supabase/seed.sql` | En el panel: 20 filas en `taquerias` y en `agregados_taqueria`, con nombre, alcaldía, latitud y longitud del CSV |
 
-## Fase 2. Vitest y prueba del bayesiano
+## Fase 2. Vitest y prueba del bayesiano (hecha)
 
 | # | Qué se hace | Archivos | Cómo se comprueba |
 | --- | --- | --- | --- |
-| 2.1 | Instalar Vitest y supabase-js, agregar el script `test`. [André] crea `.env.test.local` con URL, llave pública y llave secreta | `package.json`, `vitest.config.ts`, `.env.test.local` | `npm run test` corre (sin pruebas todavía); `git status` no muestra `.env.test.local` |
-| 2.2 | Prueba del bayesiano: llamada como `anon` con m fijo; 80 votos de 4.6 quedan arriba de 1 voto de 5. [André] la rompe con C = 0 y la anota en su bitácora | `tests/bayesiano.test.ts` | `npm run test` en verde; con C = 0, en rojo |
+| 2.1 | **Hecha.** Instalar Vitest y supabase-js, agregar el script `test`. [André] crea `.env.test.local` con URL, llave pública y llave secreta | `package.json`, `vitest.config.ts`, `.env.test.example`, `.gitignore` | `npm run test` corre (sin pruebas todavía); `git status` no muestra `.env.test.local` |
+| 2.2 | **Hecha.** Prueba del bayesiano: llamada como `anon` con m fijo; 80 votos de 4.6 quedan arriba de 1 voto de 5. [André] la rompe con C = 0 y la anota en su bitácora | `tests/bayesiano.test.ts` | `npm run test` en verde; con C = 0, en rojo |
 
-## Fase 3. Prueba de RLS y del trigger
+## Fase 3. Prueba de RLS y del trigger (hecha)
 
 | # | Qué se hace | Archivos | Cómo se comprueba |
 | --- | --- | --- | --- |
-| 3.1 | Ayudantes de prueba: crear y borrar a A, B y C con contraseña aleatoria (llave secreta) y abrir sesión como A, B, C o anónimo (llave pública) | `tests/ayudantes.ts` | Una corrida crea y borra los tres usuarios; en el panel de Auth no quedan usuarios de prueba |
-| 3.2 | Prueba de RLS de tablas: B no lee ni edita la calificación de A; A no la mueve de taquería; nadie la borra; anónimo no escribe | `tests/rls.test.ts` | `npm run test` en verde; en el panel no quedan calificaciones de prueba |
-| 3.3 | Prueba del trigger con su propio usuario C: se leen los votos y promedios de una taquería; C la califica y los votos suben en 1 respecto a los de antes; al borrar a C, votos y promedios regresan a los valores de antes. [André] la rompe quitando el borrado del trigger en el SQL Editor y la anota en su bitácora | `tests/trigger.test.ts` | `npm run test` en verde; sin el borrado en el trigger, en rojo |
-| 3.4 | [André] Debilitar una política en el SQL Editor, correr la prueba de RLS, restaurar y anotarlo en su bitácora | ninguno | La prueba se pone en rojo y vuelve a verde al restaurar |
+| 3.1 | **Hecha.** Ayudantes de prueba: crear y borrar a A, B y C con contraseña aleatoria (llave secreta) y abrir sesión como A, B, C o anónimo (llave pública) | `tests/ayudantes.ts`, `tests/ayudantes.test.ts` | Una corrida crea y borra los tres usuarios; en el panel de Auth no quedan usuarios de prueba |
+| 3.2 | **Hecha.** Prueba de RLS de tablas: B no lee ni edita la calificación de A; A no la mueve de taquería; nadie la borra; anónimo no escribe | `tests/rls.test.ts` | `npm run test` en verde; en el panel no quedan calificaciones de prueba |
+| 3.3 | **Hecha.** Prueba del trigger con su propio usuario C: se leen los votos y promedios de una taquería; C la califica y los votos suben en 1 respecto a los de antes; al borrar a C, votos y promedios regresan a los valores de antes. [André] la rompe quitando el borrado del trigger en el SQL Editor y la anota en su bitácora | `tests/trigger.test.ts` | `npm run test` en verde; sin el borrado en el trigger, en rojo |
+| 3.4 | **Hecha.** [André] Debilitar la política de lectura de calificaciones en el SQL Editor (mover, borrar e insertar sin sesión los protege el GRANT, no una política), correr la prueba de RLS, restaurar y anotarlo en su bitácora | ninguno | La prueba se pone en rojo y vuelve a verde al restaurar |
 
 ## Fase 4. Ranking y detalle de solo lectura
 

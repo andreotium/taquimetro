@@ -6,7 +6,7 @@ Las decisiones salieron de la entrevista con `/the-architect` del 20 de octubre 
 
 ## D1. Un solo proyecto de Supabase
 
-- Decisión: todo vive en el proyecto `taquimetro-onboarding`, incluidas las pruebas. Las pruebas usan dos usuarios de prueba y borran al terminar los datos que crearon.
+- Decisión: todo vive en el proyecto `taquimetro-onboarding`, incluidas las pruebas. Las pruebas usan tres usuarios de prueba (ver D3) y borran al terminar los datos que crearon.
 - Por qué: no es una app real ni tiene usuarios externos, y no hay Docker para un Supabase local.
 - Descartado: un segundo proyecto solo para pruebas y Supabase local con Docker.
 
@@ -18,7 +18,7 @@ Las decisiones salieron de la entrevista con `/the-architect` del 20 de octubre 
 
 ## D3. Los usuarios de prueba se crean sin correo
 
-- Decisión: las pruebas crean dos usuarios con la API de administración de Supabase. La llave secreta solo vive en `.env.test.local`, que git ignora, y nunca la usa la app.
+- Decisión: las pruebas crean tres usuarios (A y B para RLS, C para el trigger) con la API de administración de Supabase. La llave secreta solo vive en `.env.test.local`, que git ignora, y nunca la usa la app.
 - Por qué: una prueba que depende del correo no se puede repetir.
 
 ## D4. Fotos en una carpeta por usuario
@@ -60,9 +60,9 @@ Las decisiones salieron de la entrevista con `/the-architect` del 20 de octubre 
 ## D10. Pruebas con Vitest y rupturas a mano
 
 - Decisión:
-  - Vitest con supabase-js contra el proyecto, como usuario A, usuario B y anónimo.
+  - Vitest con supabase-js contra el proyecto, como usuario A, usuario B, usuario C y anónimo.
   - La prueba del bayesiano llama a la función con valores fijos.
-  - Cada ruptura se hace una vez a mano: se cambia C a 0 o se debilita una política en el SQL Editor, se confirma que la prueba se pone en rojo, se restaura y se anota en la bitácora.
+  - Cada ruptura se hace una vez a mano: se cambia C a 0 en la constante de `tests/bayesiano.test.ts` (no en el SQL Editor), o se debilita una política o se quita el borrado del trigger en el SQL Editor; se confirma que la prueba se pone en rojo, se restaura y se anota en la bitácora.
 - Descartado: huella de políticas, `npm run rupturas`, archivos `romper.sql` y `restaurar.sql` y carril con conexión directa a Postgres.
 
 ## D11. Semilla tal cual
