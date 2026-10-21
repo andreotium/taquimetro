@@ -71,7 +71,7 @@ El bucket `fotos` y sus políticas ya quedaron en la migración de la tarea 1.1.
 
 | # | Qué se hace | Archivos | Cómo se comprueba |
 | --- | --- | --- | --- |
-| 8.1 | Ampliar la prueba de RLS: B no borra fotos de A, no sube a su carpeta ni registra su ruta; se rechazan un `.txt` y un archivo de más de 5 MB | `tests/rls.test.ts` | `npm run test` en verde; en el panel no quedan archivos de prueba |
+| 8.1 | **Hecha.** Ampliar la prueba de RLS: B no borra fotos de A, no sube a su carpeta ni registra su ruta; se rechazan un `.txt` y un archivo de más de 5 MB | `tests/rls.test.ts`, `tests/ayudantes.ts` | `npm run test` en verde; en el panel no quedan archivos de prueba |
 | 8.2 | Subir, ver y borrar fotos en el detalle, con mensajes claros de tipo y tamaño | `components/` | Subir un JPG, verlo, borrarlo; un archivo de 6 MB muestra el error en pantalla |
 | 8.3 | Mapa con Leaflet, react-leaflet y OpenStreetMap; tocar un marcador abre el detalle | `components/`, `package.json` | Las 20 taquerías aparecen en el mapa en computadora y en la pestaña "Mapa" en celular |
 
