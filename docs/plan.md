@@ -46,8 +46,8 @@ Reglas:
 | # | Qué se hace | Archivos | Cómo se comprueba |
 | --- | --- | --- | --- |
 | 5.1 | **Hecha.** Formulario de correo al tocar "Calificar" y ruta de regreso que inicia la sesión, ignora `next` y redirige a `/` (o a `/?login=error` si el enlace venció); `proxy.ts` renueva la sesión | `components/`, `app/auth/callback/`, `lib/auth.ts`, `tests/auth.test.ts`, `proxy.ts` | En local, el enlace del correo de André lo deja en `/` con sesión; agregar `?next=https://ejemplo.com` no cambia el destino |
-| 5.2 | Formulario de calificación: crear con inserción y editar con `.update()` | `components/` | Calificar una taquería, editarla y ver en el panel una sola fila con los valores nuevos |
-| 5.3 | El detalle (hecho en 4.3) refleja la calificación nueva al recargar | `components/` | Tras calificar, el detalle muestra 1 voto, los promedios y "pocos votos" al recargar |
+| 5.2 | **Hecha.** Formulario de calificación: crear con inserción y editar con `.update()`; si ya hay calificación, el formulario sale lleno. Al guardar, `router.refresh()` vuelve a pedir el ranking y el detalle y el ranking muestran los datos nuevos sin recargar | `lib/calificacion.ts`, `tests/calificacion.test.ts`, `components/` | `npm run test` en verde; calificar una taquería, editarla y ver en el panel una sola fila con los valores nuevos |
+| 5.3 | **Hecha dentro de la 5.2.** El detalle (hecho en 4.3) refleja la calificación nueva después de guardar | `components/` | Tras calificar, sin recargar, el detalle muestra 1 voto, los promedios y "pocos votos" |
 | 5.4 | Pulido visual con datos reales: revisar el diseño con votos y ajustar el encabezado, los íconos de salsa, tortilla y carne y el primer lugar del ranking | `app/globals.css`, `components/` | Revisión en el navegador, con taquerías ya calificadas, a ancho de computadora y de celular |
 
 ## Fase 6. Despliegue en Vercel

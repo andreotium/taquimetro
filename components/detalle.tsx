@@ -68,7 +68,7 @@ export function Detalle({ taqueria, onVolver }: { taqueria: Taqueria; onVolver?:
       </header>
 
       {/* La key cierra el formulario al cambiar de taquería. */}
-      <Calificar key={t.id} />
+      <Calificar key={t.id} taqueriaId={t.id} />
 
       {!t.agregadosEncontrados ? (
         <p role="status" className="text-lg">
