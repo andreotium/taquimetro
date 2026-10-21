@@ -57,3 +57,7 @@ Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto 
 12:30 Isacc aprobó el diseño con dos ajustes: DELETE en el trigger con on delete cascade (ya estaba en la migración) y una prueba del trigger. Agregué la prueba con su propio usuario, comparando contra los votos previos, y anoté en D7 el riesgo de votos simultáneos. Merge del PR #1.
 
 12:45 Verificación con el MCP (solo lectura): 20 taquerías y 20 agregados, RLS activo en las 4 tablas, bucket con 5 MB y solo JPG/PNG, Realtime solo en agregados. El advisor marca rls_auto_enable(), una función que instaló Supabase por la opción "Enable automatic RLS"; no se puede llamar directamente, así que la dejo como riesgo aceptado.
+
+13:10 Tarea 2.2. Prueba del bayesiano con la llave pública (como anon): con C = 3, 1 voto de 5 saca 4.25 y 80 votos de 4.6 sacan 4.58. Ruptura a mano: con C = 0 la prueba se puso en rojo ("expected 4.6 to be greater than 5"); al regresar a 3, verde.
+
+13:23 Paso 4, punto 7. Prueba de RLS con usuarios de prueba (7 pruebas en verde). Ruptura a mano en el SQL Editor: cambié la política de lectura de calificaciones a using (true) y falló exactamente "B no puede leer la calificación de A" (B recibió la calificación completa de A). Las otras 4 siguieron en verde porque las protege el GRANT, no la política. Restauré la política original de la migración y todo volvió a verde.
