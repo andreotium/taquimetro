@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AvisoEnlaceVencido } from "@/components/calificar";
 import { Detalle, EtiquetaPocosVotos, textoVotos, type Taqueria } from "@/components/detalle";
+import { agruparAvisos } from "@/lib/agrupar";
+import { crearClienteNavegador } from "@/lib/supabase/cliente";
 
 type Pestana = "ranking" | "mapa";
 
@@ -37,6 +40,35 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
   const [elegidaId, setElegidaId] = useState<number | null>(null);
   const [pestana, setPestana] = useState<Pestana>("ranking");
   const elegida = taquerias.find((t) => t.id === elegidaId) ?? null;
+  const router = useRouter();
+
+  // Tiempo real (D8): solo agregados_taqueria, nunca calificaciones. Un voto reescribe las
+  // 20 filas de agregados, así que los avisos se agrupan y el ranking se pide una sola vez.
+  // router.refresh() conserva la taquería elegida: elegidaId es estado de este componente.
+  useEffect(() => {
+    const supabase = crearClienteNavegador();
+    const { avisar, cancelar } = agruparAvisos(() => router.refresh(), 500);
+    let conectado = false;
+
+    const canal = supabase
+      .channel("agregados")
+      .on("postgres_changes", { event: "*", schema: "public", table: "agregados_taqueria" }, avisar)
+      .subscribe((estado) => {
+        if (estado === "SUBSCRIBED") {
+          // Al reconectar se pudieron perder avisos: se pide el ranking otra vez.
+          if (conectado) avisar();
+          conectado = true;
+        } else if (estado === "CHANNEL_ERROR" || estado === "TIMED_OUT") {
+          // Sin tiempo real la página sigue con los últimos datos; supabase-js reintenta solo.
+          console.warn("Tiempo real desconectado; el ranking se actualizará al reconectar.");
+        }
+      });
+
+    return () => {
+      cancelar();
+      supabase.removeChannel(canal);
+    };
+  }, [router]);
 
   // Solo aplica en celular; en computadora las tres columnas siempre se ven.
   const enCelular = elegida

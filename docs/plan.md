@@ -63,7 +63,7 @@ La publicación de Realtime ya quedó en la migración de la tarea 1.1.
 
 | # | Qué se hace | Archivos | Cómo se comprueba |
 | --- | --- | --- | --- |
-| 7.1 | Suscripción a cambios de agregados que reordena el ranking | `components/` | Dos navegadores abiertos: uno califica y el otro reordena sin recargar |
+| 7.1 | **Hecha.** Suscripción a cambios de agregados que reordena el ranking. Los 20 avisos de un voto se agrupan en un solo `router.refresh()`; la taquería elegida se conserva | `lib/agrupar.ts`, `tests/agrupar.test.ts`, `components/` | Dos navegadores abiertos: uno califica y el otro reordena sin recargar |
 
 ## Fase 8. Fotos y mapa
 

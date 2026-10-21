@@ -105,7 +105,7 @@ El trigger necesita ver todas las calificaciones, no solo las del usuario que vo
 2. Al cargar, la app lee el ranking (taquerías con sus agregados).
 3. El navegador se suscribe a los cambios de `agregados_taqueria`.
 4. Alguien califica; el trigger reescribe las filas de agregados.
-5. Supabase avisa a cada pantalla abierta; la app actualiza los datos y reordena el ranking.
+5. Supabase avisa a cada pantalla abierta, una vez por fila. La app agrupa esos avisos y vuelve a pedir el ranking una sola vez; la taquería elegida se conserva.
 
 **Login con enlace mágico** (con `@supabase/ssr`, que guarda la sesión en cookies para que la lean tanto el navegador como el servidor)
 1. El usuario toca "Calificar" sin sesión y aparece el formulario de correo.
@@ -136,7 +136,7 @@ supabase/
   migrations/             una sola migración: tablas, RLS, GRANT, función, trigger, bucket, Realtime
   seed.sql                semilla: 20 taquerías y sus agregados en 0 (db push --include-seed)
   seed/datos.csv          las 20 taquerías
-tests/                    pruebas de Vitest (bayesiano, RLS, trigger, orden del ranking, errores y destino del login)
+tests/                    pruebas de Vitest (bayesiano, RLS, trigger, orden del ranking, errores, destino del login, calificación y agrupación de avisos)
 .env.local                URL y llave pública de Supabase (ignorado por git)
 .env.example              nombres de las variables de .env.local, sin valores
 .env.test.local           URL, llave pública y llave secreta, solo para pruebas (ignorado por git, D3)
