@@ -61,3 +61,7 @@ Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto 
 13:10 Tarea 2.2. Prueba del bayesiano con la llave pública (como anon): con C = 3, 1 voto de 5 saca 4.25 y 80 votos de 4.6 sacan 4.58. Ruptura a mano: con C = 0 la prueba se puso en rojo ("expected 4.6 to be greater than 5"); al regresar a 3, verde.
 
 13:23 Paso 4, punto 7. Prueba de RLS con usuarios de prueba (7 pruebas en verde). Ruptura a mano en el SQL Editor: cambié la política de lectura de calificaciones a using (true) y falló exactamente "B no puede leer la calificación de A" (B recibió la calificación completa de A). Las otras 4 siguieron en verde porque las protege el GRANT, no la política. Restauré la política original de la migración y todo volvió a verde.
+
+13:35 Tarea 3.3. Prueba del trigger con su propio usuario C (pedida por Isacc). Ruptura en el SQL Editor: recreé el trigger sin delete y la prueba falló con votos = 1 donde debía haber 0 (el voto de C se quedó tras borrarlo). Restauré el trigger original de la migración: 8 de 8 pruebas en verde.
+
+13:40 Cierre del paso 4 de la guía (fases 1 a 3 del plan). Migración aplicada y versionada, semilla cargada y verificada con el MCP, y 8 pruebas en verde (bayesiano, RLS y trigger), cada una vista en rojo con su ruptura a propósito. Limpieza de docs, plan y CLAUDE.md para reflejar el estado real.

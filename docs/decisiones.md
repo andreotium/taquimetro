@@ -62,7 +62,7 @@ Las decisiones salieron de la entrevista con `/the-architect` del 20 de octubre 
 - Decisión:
   - Vitest con supabase-js contra el proyecto, como usuario A, usuario B, usuario C y anónimo.
   - La prueba del bayesiano llama a la función con valores fijos.
-  - Cada ruptura se hace una vez a mano: se cambia C a 0, se debilita una política o se quita el borrado del trigger en el SQL Editor, se confirma que la prueba se pone en rojo, se restaura y se anota en la bitácora.
+  - Cada ruptura se hace una vez a mano: se cambia C a 0 en la constante de `tests/bayesiano.test.ts` (no en el SQL Editor), o se debilita una política o se quita el borrado del trigger en el SQL Editor; se confirma que la prueba se pone en rojo, se restaura y se anota en la bitácora.
 - Descartado: huella de políticas, `npm run rupturas`, archivos `romper.sql` y `restaurar.sql` y carril con conexión directa a Postgres.
 
 ## D11. Semilla tal cual

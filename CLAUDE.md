@@ -13,7 +13,7 @@ Taquímetro: app web de ranking colaborativo y en vivo de taquerías de CDMX, co
 - `docs/bitacora.md` es la bitácora personal de André. No escribas en ella.
 - Todo el proyecto (docs, datos, UI y comentarios) está en español.
 
-Estado actual: solo el esqueleto de `create-next-app` (`app/page.tsx` es la plantilla). Aún no hay cliente de Supabase, migraciones ni pruebas.
+Estado actual: fases 1 a 3 de `docs/plan.md` hechas. La migración `supabase/migrations/20261021174405_esquema_inicial.sql` está aplicada y la semilla cargada. Vitest corre pruebas del bayesiano, de RLS y del trigger en `tests/`. La UI sigue siendo la plantilla de `create-next-app` y aún no hay cliente de Supabase en la app.
 
 ## Cómo trabajar en este repo
 
@@ -31,9 +31,8 @@ Estado actual: solo el esqueleto de `create-next-app` (`app/page.tsx` es la plan
 npm run dev     # servidor de desarrollo (http://localhost:3000)
 npm run build
 npm run lint    # eslint 9, flat config (eslint-config-next core-web-vitals + typescript)
+npm run test    # Vitest contra el proyecto de Supabase; requiere .env.test.local
 ```
-
-No hay framework de pruebas configurado todavía.
 
 ## Stack y particularidades
 
