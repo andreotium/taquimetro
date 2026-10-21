@@ -6,7 +6,7 @@ Las decisiones salieron de la entrevista con `/the-architect` del 20 de octubre 
 
 ## D1. Un solo proyecto de Supabase
 
-- Decisión: todo vive en el proyecto `taquimetro-onboarding`, incluidas las pruebas. Las pruebas usan dos usuarios de prueba y borran al terminar los datos que crearon.
+- Decisión: todo vive en el proyecto `taquimetro-onboarding`, incluidas las pruebas. Las pruebas usan tres usuarios de prueba (ver D3) y borran al terminar los datos que crearon.
 - Por qué: no es una app real ni tiene usuarios externos, y no hay Docker para un Supabase local.
 - Descartado: un segundo proyecto solo para pruebas y Supabase local con Docker.
 
