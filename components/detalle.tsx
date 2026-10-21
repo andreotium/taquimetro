@@ -1,3 +1,4 @@
+import { Calificar } from "@/components/calificar";
 import type { FilaRanking } from "@/lib/ranking";
 
 // Una fila del ranking con todo lo que muestra el detalle.
@@ -65,6 +66,9 @@ export function Detalle({ taqueria, onVolver }: { taqueria: Taqueria; onVolver?:
         <h2 className="font-display text-3xl font-bold leading-tight">{t.nombre}</h2>
         {t.alcaldia && <p className="mt-1 text-tenue">{t.alcaldia}</p>}
       </header>
+
+      {/* La key cierra el formulario al cambiar de taquería. */}
+      <Calificar key={t.id} />
 
       {!t.agregadosEncontrados ? (
         <p role="status" className="text-lg">

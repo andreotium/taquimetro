@@ -21,7 +21,7 @@ export async function crearClienteServidor() {
             );
           } catch {
             // Un Server Component no puede escribir cookies; se ignora porque la sesión
-            // se escribe en la ruta de regreso del login (Route Handler).
+            // la escriben la ruta de regreso del login (Route Handler) y proxy.ts al renovarla.
           }
         },
       },

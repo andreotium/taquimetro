@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AvisoEnlaceVencido } from "@/components/calificar";
 import { Detalle, EtiquetaPocosVotos, textoVotos, type Taqueria } from "@/components/detalle";
 
 type Pestana = "ranking" | "mapa";
@@ -53,6 +54,7 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
   return (
     <div className="flex min-h-dvh flex-col lg:h-dvh">
       <Encabezado />
+      <AvisoEnlaceVencido />
 
       {!elegida && (
         <div role="tablist" className="flex border-b border-linea lg:hidden">
