@@ -33,3 +33,23 @@
 
 17:12 Paso 3.1 completo. Spec en docs/spec.md y datos semilla en supabase/seed/datos.csv (exportado desde xlsx, UTF-8, 20 taquerías). Coordenadas aún NO VERIFICADO: se contrastan con OpenStreetMap antes del seed. La guía pedía datos.csv; lo generé desde el xlsx.
 
+17:50 Leí el SKILL.md de the-architect antes de usarla (pendiente desde la instalación). Escribe solo en blueprints/, no toca servicios. Riesgos: generar su propio CLAUDE.md, repetir el discovery y proponer otro stack; los acoté en el prompt.
+
+Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto en la nube (taquimetro-pruebas), en vez de Supabase local. Rechacé Resend porque exige verificar un dominio propio y no voy a usar el de Otium; se queda el SMTP por defecto como riesgo conocido. Pedí que la decisión quede en docs/decisiones.md y no en mi bitácora. Antes de confirmar pedí: revisión manual de coordenadas OSM, aclarar "sesiones que no expiran", verificar políticas antes de cada ruptura y ver qué guardó en memoria.
+
+18:30 Paso 3.2. create-next-app no acepta carpetas desconocidas (supabase/); la saqué del repo, creé el proyecto y la devolví. El primer mv falló por bloqueo de VS Code. Quedó sin src/ y generó AGENTS.md. npm reporta 5 vulnerabilidades altas: no apliqué audit fix --force. Primer commit en main.
+
+19:55 Al confirmar la arquitectura, la skill eligió el modo bundle sin preguntar. A los 18 minutos llevaba unos 300K tokens y empezó a escribir código de scripts. Lo detuve (Ctrl+K choca con VS Code, así que cerré la terminal). No escribió archivos. Las decisiones quedaron en docs/decisiones.md.
+
+## 2026-10-21
+
+09:30 Simplificación. Comparé la spec con la guía: cumplía todo, pero tenía de más. Quité fotos anónimas, regreso a la misma taquería tras el login, verificación de coordenadas con OSM, mediana de precio con prueba propia, tabla config, segundo proyecto de pruebas, huella de políticas y candado en el trigger. También descarté el mockup: Claude Design lo entendió como app de celular y era difícil de entender; ahora es una app web minimalista de colores claros que también funciona en celular. Reescribí spec.md, decisiones.md y CLAUDE.md, y borré docs/mockups. Aprendizaje: cada pieza extra parecía razonable sola, pero juntas multiplicaron la complejidad. Hay que comparar contra la guía antes de diseñar.
+
+10:10 Paso 3, puntos 3 y 4. docs/arquitectura.md escrito en una sesión normal de Claude Code (sin la skill), con límites de archivos y líneas. Resolví 13 dudas eligiendo siempre lo más simple (por ejemplo, sin borrar calificaciones). Segunda opinión del subagente Plan en 1 minuto: encontró un hueco real de RLS (editar una calificación permitía cambiarla de taquería), una prueba de RLS que habría salido siempre en verde y una redirección abierta en el login. Apliqué sus cambios. Aprendizaje: con límites claros, un subagente revisor es rápido y útil; el problema de ayer fue el modo bundle, no los subagentes.
+
+10:25 Paso 3, punto 5. Plan de 26 tareas en docs/plan.md, cada una con su comprobación y con las acciones mías marcadas. No usé writing-plans porque escribe el código completo dentro del plan; para este MVP bastaba un plan corto.
+
+10:35 Repo en público para que Isacc pueda revisar el PR sin unirse (repo revisado antes: sin llaves ni secretos). La spec decía que las calificaciones se borran y la arquitectura que no; corregí la spec.
+10:45 PR #1 abierto y enviado a Isacc para revisión. Hasta que conteste no escribo código.
+
+12:05 Paso 4 (Supabase). Isacc no ha revisado el PR entonces decidí avanzar: la base está vacía y cualquier cambio que pida se corrige con otra migración. Supabase CLI con npx (sin instalarla en el proyecto), repo ligado en la rama fase-1/base-de-datos. Seguí la guía con una sola migración (el plan la dividía en varias). Antes de aplicarla, el autor de la migración señaló que el trigger no reaccionaba a borrados y que los usuarios de prueba borran sus calificaciones en cascada; lo agregué. Ensayo con db push --dry-run antes del push real.
