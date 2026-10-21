@@ -137,6 +137,7 @@ supabase/
   seed/datos.csv          las 20 taquerías
 tests/                    pruebas de Vitest (bayesiano, RLS y trigger)
 .env.local                URL y llave pública de Supabase (ignorado por git)
+.env.example              nombres de las variables de .env.local, sin valores
 .env.test.local           URL, llave pública y llave secreta, solo para pruebas (ignorado por git, D3)
 .env.test.example         nombres de las variables de .env.test.local, sin valores
 ```
@@ -163,8 +164,8 @@ Cada ruptura se hace una vez, a mano. André la anota en su bitácora.
 1. **Base de datos** (hecha): una sola migración, `supabase/migrations/20261021174405_esquema_inicial.sql`, con las 4 tablas, GRANT, RLS, función bayesiana, trigger, bucket `fotos` y Realtime; y la semilla en `supabase/seed.sql` (20 taquerías y 20 filas de agregados en 0), aplicada con `supabase db push --include-seed`. Se comprueba: los datos aparecen en el panel y un usuario anónimo puede leerlos pero no escribir.
 2. **Vitest y prueba del bayesiano**: se instala Vitest y se prueba la función bayesiana. Se comprueba: la prueba pasa y se pone en rojo con C = 0.
 3. **Prueba de RLS y del trigger**: Vitest con tres usuarios (A y B para RLS, C para el trigger). Se comprueba: pasa, y se pone en rojo al debilitar una política o quitar el borrado del trigger a mano.
-4. **Ranking y detalle de solo lectura**: la página muestra el ranking ordenado (con desempates) y el detalle, con los tres errores distintos. Se comprueba: `npm run build` y `npm run lint` pasan, y la app se ve en computadora y en celular.
-5. **Login y calificación**: `@supabase/ssr`, ruta de regreso y formulario de calificación con edición. Se comprueba: al calificar en local, el agregado cambia y aparece "pocos votos" con menos de 3 votos.
+4. **Ranking y detalle de solo lectura**: clientes de `@supabase/ssr` para navegador y servidor; la página muestra el ranking ordenado (con desempates) y el detalle, con los tres errores distintos. Se comprueba: `npm run build` y `npm run lint` pasan, y la app se ve en computadora y en celular.
+5. **Login y calificación**: formulario de correo, ruta de regreso y formulario de calificación con edición. Se comprueba: al calificar en local, el agregado cambia y aparece "pocos votos" con menos de 3 votos.
 6. **Despliegue en Vercel**: variables de entorno y URLs de redirección (las coloca André). Se comprueba: el enlace mágico funciona en producción desde un teléfono real.
 7. **Tiempo real**: suscripción a `agregados_taqueria`. Se comprueba: con dos pantallas abiertas, una califica y la otra reordena el ranking sin recargar.
 8. **Fotos y mapa**: prueba de RLS del bucket (que ya existe desde la fase 1), subida y borrado de fotos, y mapa con Leaflet. Se comprueba: la prueba de RLS cubre el bucket y pasa; un archivo de más de 5 MB se rechaza en pantalla; las 20 taquerías aparecen en el mapa.

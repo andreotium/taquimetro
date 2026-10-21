@@ -65,3 +65,5 @@ Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto 
 13:35 Tarea 3.3. Prueba del trigger con su propio usuario C (pedida por Isacc). Ruptura en el SQL Editor: recreé el trigger sin delete y la prueba falló con votos = 1 donde debía haber 0 (el voto de C se quedó tras borrarlo). Restauré el trigger original de la migración: 8 de 8 pruebas en verde.
 
 13:40 Cierre del paso 4 de la guía (fases 1 a 3 del plan). Migración aplicada y versionada, semilla cargada y verificada con el MCP, y 8 pruebas en verde (bayesiano, RLS y trigger), cada una vista en rojo con su ruptura a propósito. Limpieza de docs, plan y CLAUDE.md para reflejar el estado real.
+
+15:10 Paso 5. Leí los SKILL.md de subagent-driven-development y test-driven-development antes de usarlos. SDD lanza de 27 a más de 150 subagentes para 13 tareas, no se detiene entre tareas y decide solo; choca con mis reglas y repite el riesgo del bundle de ayer. Decidí no usarlo: ejecuto el plan una tarea a la vez con test-driven-development (sin subagentes) y apruebo entre tareas. Para la interfaz, frontend-design siguiendo la descripción de diseño de la spec, no los mockups.

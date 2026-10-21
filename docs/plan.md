@@ -36,7 +36,7 @@ Reglas:
 
 | # | Qué se hace | Archivos | Cómo se comprueba |
 | --- | --- | --- | --- |
-| 4.1 | Clientes de `@supabase/ssr` para navegador y servidor. [André] crea `.env.local` con URL y llave pública | `lib/supabase/`, `.env.local` | `npm run build` pasa; `git status` no muestra `.env.local` |
+| 4.1 | Instalar `@supabase/ssr` y pasar `@supabase/supabase-js` a `dependencies`; clientes para navegador y servidor. [André] crea `.env.local` con URL y llave pública a partir de `.env.example` | `package.json`, `lib/supabase/`, `.env.example`, `.gitignore` | `npm run build` pasa; `git status` no muestra `.env.local` |
 | 4.2 | Lectura del ranking: orden por bayesiano, desempate por votos y nombre, sin votos al final por nombre, etiqueta "pocos votos" | `app/page.tsx`, `components/` | `npm run dev`: las 20 aparecen en orden alfabético (todas sin votos) |
 | 4.3 | Vista: en computadora ranking y detalle lado a lado (espacio para el mapa); en celular pestañas y detalle en su vista | `app/layout.tsx`, `app/page.tsx`, `components/` | Revisión en el navegador a ancho de computadora y de celular |
 | 4.4 | Errores visibles: "no hay datos", "no se encontró" y "no se pudo consultar" | `components/` | Con una URL de Supabase falsa en `.env.local` aparece "no se pudo consultar"; al restaurarla, el ranking vuelve |
