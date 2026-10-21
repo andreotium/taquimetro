@@ -48,3 +48,5 @@ Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto 
 10:10 Paso 3, puntos 3 y 4. docs/arquitectura.md escrito en una sesión normal de Claude Code (sin la skill), con límites de archivos y líneas. Resolví 13 dudas eligiendo siempre lo más simple (por ejemplo, sin borrar calificaciones). Segunda opinión del subagente Plan en 1 minuto: encontró un hueco real de RLS (editar una calificación permitía cambiarla de taquería), una prueba de RLS que habría salido siempre en verde y una redirección abierta en el login. Apliqué sus cambios. Aprendizaje: con límites claros, un subagente revisor es rápido y útil; el problema de ayer fue el modo bundle, no los subagentes.
 
 10:25 Paso 3, punto 5. Plan de 26 tareas en docs/plan.md, cada una con su comprobación y con las acciones mías marcadas. No usé writing-plans porque escribe el código completo dentro del plan; para este MVP bastaba un plan corto.
+
+10:40 Paso 3, puntos 6 y 7. Diagrama de arquitectura hecho en la app de Claude a partir de docs/. PR de diseño abierto con CLAUDE.md, spec, decisiones, arquitectura y plan; revisión pedida a Isacc antes de escribir código.

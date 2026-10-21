@@ -51,7 +51,7 @@ Reglas que viven en la base:
 - El precio por taco se valida entre 5 y 150, con decimales.
 - Hay una sola calificación por usuario por taquería. Editar actualiza esa fila.
 - El puntaje bayesiano es una función SQL pura que recibe v, R, m y C, para probarla con valores fijos. C vale 3.
-- Un trigger recalcula `agregados_taqueria` con cada calificación nueva, editada o borrada. Como cambia el promedio global, recalcula las 20 filas; es aceptable en el MVP.
+- Un trigger recalcula `agregados_taqueria` con cada calificación nueva, o editada. Como cambia el promedio global, recalcula las 20 filas; es aceptable en el MVP.
 - La etiqueta "pocos votos" aplica con menos de 3 votos. Las taquerías sin votos van al final, sin puntaje, en orden alfabético.
 
 El puntaje bayesiano usa la forma ponderada estándar, donde v es el número de votos de la taquería, R su promedio, m el promedio global y C el peso del prior:
