@@ -33,3 +33,6 @@
 
 17:12 Paso 3.1 completo. Spec en docs/spec.md y datos semilla en supabase/seed/datos.csv (exportado desde xlsx, UTF-8, 20 taquerías). Coordenadas aún NO VERIFICADO: se contrastan con OpenStreetMap antes del seed. La guía pedía datos.csv; lo generé desde el xlsx.
 
+17:50 Leí el SKILL.md de the-architect antes de usarla (pendiente desde la instalación). Escribe solo en blueprints/, no toca servicios. Riesgos: generar su propio CLAUDE.md, repetir el discovery y proponer otro stack; los acoté en el prompt.
+
+Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto en la nube (taquimetro-pruebas), en vez de Supabase local. Rechacé Resend porque exige verificar un dominio propio y no voy a usar el de Otium; se queda el SMTP por defecto como riesgo conocido. Pedí que la decisión quede en docs/decisiones.md y no en mi bitácora. Antes de confirmar pedí: revisión manual de coordenadas OSM, aclarar "sesiones que no expiran", verificar políticas antes de cada ruptura y ver qué guardó en memoria.
