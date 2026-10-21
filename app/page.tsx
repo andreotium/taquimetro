@@ -1,11 +1,14 @@
+import { io } from "next/cache";
 import { Suspense } from "react";
 import { Aviso, Taquimetro } from "@/components/taquimetro";
 import { estadoConsulta } from "@/lib/consulta";
 import { ordenarRanking } from "@/lib/ranking";
 import { crearClienteServidor } from "@/lib/supabase/servidor";
 
-// Lee las cookies, así que con cacheComponents debe ir dentro de <Suspense>.
+// Con partialPrefetching, cookies() ya no detiene el prerender. auth-js lee Date.now()
+// al crear el cliente si hay sesión, así que io() deja el resto fuera del prerender.
 async function Ranking() {
+  await io();
   const supabase = await crearClienteServidor();
   const [taquerias, agregados] = await Promise.all([
     supabase.from("taquerias").select("id, nombre, alcaldia"),
