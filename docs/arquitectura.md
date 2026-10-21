@@ -129,13 +129,14 @@ app/
   layout.tsx              estructura general y estilos
   page.tsx                página principal: ranking, mapa y detalle
   auth/callback/          ruta de regreso del login: inicia la sesión y redirige a /
+proxy.ts                  renueva la sesión antes de cada página y guarda la cookie (un Server Component no puede)
 components/               ranking, mapa (Leaflet), detalle, formulario de calificación, fotos, login
 lib/supabase/             clientes de @supabase/ssr para navegador y servidor (solo llave pública)
 supabase/
   migrations/             una sola migración: tablas, RLS, GRANT, función, trigger, bucket, Realtime
   seed.sql                semilla: 20 taquerías y sus agregados en 0 (db push --include-seed)
   seed/datos.csv          las 20 taquerías
-tests/                    pruebas de Vitest (bayesiano, RLS y trigger)
+tests/                    pruebas de Vitest (bayesiano, RLS, trigger, orden del ranking, errores y destino del login)
 .env.local                URL y llave pública de Supabase (ignorado por git)
 .env.example              nombres de las variables de .env.local, sin valores
 .env.test.local           URL, llave pública y llave secreta, solo para pruebas (ignorado por git, D3)
