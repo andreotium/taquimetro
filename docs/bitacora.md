@@ -36,3 +36,11 @@
 17:50 Leí el SKILL.md de the-architect antes de usarla (pendiente desde la instalación). Escribe solo en blueprints/, no toca servicios. Riesgos: generar su propio CLAUDE.md, repetir el discovery y proponer otro stack; los acoté en el prompt.
 
 Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto en la nube (taquimetro-pruebas), en vez de Supabase local. Rechacé Resend porque exige verificar un dominio propio y no voy a usar el de Otium; se queda el SMTP por defecto como riesgo conocido. Pedí que la decisión quede en docs/decisiones.md y no en mi bitácora. Antes de confirmar pedí: revisión manual de coordenadas OSM, aclarar "sesiones que no expiran", verificar políticas antes de cada ruptura y ver qué guardó en memoria.
+
+18:30 Paso 3.2. create-next-app no acepta carpetas desconocidas (supabase/); la saqué del repo, creé el proyecto y la devolví. El primer mv falló por bloqueo de VS Code. Quedó sin src/ y generó AGENTS.md. npm reporta 5 vulnerabilidades altas: no apliqué audit fix --force. Primer commit en main.
+
+19:55 Al confirmar la arquitectura, la skill eligió el modo bundle sin preguntar. A los 18 minutos llevaba unos 300K tokens y empezó a escribir código de scripts. Lo detuve (Ctrl+K choca con VS Code, así que cerré la terminal). No escribió archivos. Las decisiones quedaron en docs/decisiones.md.
+
+## 2026-10-21
+
+09:30 Simplificación. Comparé la spec con la guía: cumplía todo, pero tenía de más. Quité fotos anónimas, regreso a la misma taquería tras el login, verificación de coordenadas con OSM, mediana de precio con prueba propia, tabla config, segundo proyecto de pruebas, huella de políticas y candado en el trigger. También descarté el mockup: Claude Design lo entendió como app de celular y era difícil de entender; ahora es una app web minimalista de colores claros que también funciona en celular. Reescribí spec.md, decisiones.md y CLAUDE.md, y borré docs/mockups. Aprendizaje: cada pieza extra parecía razonable sola, pero juntas multiplicaron la complejidad. Hay que comparar contra la guía antes de diseñar.

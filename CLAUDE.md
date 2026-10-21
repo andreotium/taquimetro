@@ -1,14 +1,29 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Este archivo guía a Claude Code al trabajar en este repositorio.
 
 @AGENTS.md
 
 ## Proyecto
 
-Taquímetro: ranking colaborativo y en vivo de taquerías de CDMX. MVP de 3 días con Next.js, Supabase y Vercel. La fuente de verdad del alcance es `docs/spec.md` (historias, modelo de datos, pruebas obligatorias, orden de recorte). `docs/bitacora.md` registra decisiones y su porqué; léela antes de reabrir una decisión. Todo el proyecto (docs, datos, UI) está en español.
+Taquímetro: app web de ranking colaborativo y en vivo de taquerías de CDMX, con Next.js, Supabase y Vercel. Es un proyecto de onboarding: el objetivo es demostrar el uso de las herramientas, no construir un producto real. Ante dos opciones, elige siempre la más simple que cumpla.
+
+- Alcance: `docs/spec.md`.
+- Decisiones de arquitectura: `docs/decisiones.md`. Léelo antes de proponer algo distinto.
+- `docs/bitacora.md` es la bitácora personal de André. No escribas en ella.
+- Todo el proyecto (docs, datos, UI y comentarios) está en español.
 
 Estado actual: solo el esqueleto de `create-next-app` (`app/page.tsx` es la plantilla). Aún no hay cliente de Supabase, migraciones ni pruebas.
+
+## Cómo trabajar en este repo
+
+- Una tarea a la vez. Antes de escribir código, explica en pocas líneas qué vas a hacer y qué archivos vas a tocar, y espera aprobación.
+- Si una tarea va a crear o cambiar más de 3 archivos, muestra primero la lista y espera aprobación.
+- Si una tarea va a leer mucho o tardar más de unos minutos, avisa antes y propón partirla en pasos más chicos.
+- No generes blueprints, paquetes de tareas, skills, reglas ni archivos de configuración de Claude, salvo que André lo pida.
+- No lances subagentes en segundo plano sin avisar antes.
+- No ejecutes comandos que modifiquen Supabase. Las migraciones se proponen y André las aprueba.
+- Explica las cosas de forma simple y directa; si usas un término técnico, explícalo en una línea.
 
 ## Comandos
 
@@ -25,26 +40,27 @@ No hay framework de pruebas configurado todavía.
 - Next.js 16.4 + React 19.3, App Router. Por `AGENTS.md`, consulta `node_modules/next/dist/docs/` antes de escribir código de Next; las APIs difieren de versiones anteriores.
 - `next.config.ts` activa `cacheComponents` y `partialPrefetching`.
 - Tailwind v4 se carga con el loader `@tailwindcss/turbopack` declarado en `turbopack.rules` de `next.config.ts`, no con PostCSS (no hay `postcss.config`).
-- Alias de importación `@/*` apunta a la raíz del repo.
+- Alias de importación `@/*` apunta a la raíz del repo. No hay carpeta `src/`.
 
-## Arquitectura prevista (de la spec)
+## Diseño
 
-Una sola página con ranking, mapa (Leaflet) y panel de detalle; en celular, bloques apilados o en pestañas.
-
-La lógica y los permisos viven en la base, no en la app:
-
-- Tablas: `taquerias` (20 sembradas, solo lectura), `config` (incluye C del bayesiano, inicial 3), `votos` (privada: solo el autor, `auth.uid() = user_id`; un voto por usuario por taquería), `agregados_taqueria` (pública, escrita solo por trigger), `fotos` (pública, **sin** `user_id`). RLS en todas las tablas y en el bucket.
-- El puntaje del voto (promedio de salsa/tortilla/carne), la validación de precio (5 a 150) y el puntaje bayesiano (función SQL pura, `v/(v+C)*R + C/(v+C)*m`) se calculan en la base. Cada voto recalcula las 20 filas de agregados; es aceptable en el MVP.
-- Tiempo real: los clientes se suscriben a `agregados_taqueria`, nunca a `votos`.
-- Login por enlace mágico, solo al tocar "Votar". La taquería de retorno viaja en la URL de redirección, no en el almacenamiento del navegador.
-- Fotos: nombre de archivo aleatorio sin `user_id` en la ruta; propiedad verificada por `owner_id` de Storage; solo imágenes, máximo 5 MB. El vínculo foto-autor vive solo en el voto privado.
-- Errores visibles que distinguen "no hay datos", "no se encontró" y "no se pudo consultar".
-
-Cada prueba obligatoria (bayesiano, mediana de precio, RLS entre dos usuarios) debe verse en rojo con la ruptura deliberada que indica la spec.
+App web minimalista, fácil de entender, con colores claros, buen contraste y tipografía legible. En computadora: ranking, mapa y detalle lado a lado. En celular: pestañas "Ranking" y "Mapa" y el detalle en su propia vista. No hay mockup de referencia.
 
 ## Supabase
 
-- Proyecto en la organización propia `andre-onboarding`. "Automatically expose new tables" está desactivado: **cada migración debe otorgar permisos (GRANT) de forma explícita**, además de sus políticas RLS.
-- El MCP de Supabase está configurado en `read_only=true`. Las migraciones requieren aprobación del usuario antes de aplicarse.
+- Proyecto `taquimetro-onboarding` en la organización `andre-onboarding`. "Automatically expose new tables" está desactivado: cada migración debe otorgar permisos (GRANT) de forma explícita, además de sus políticas RLS.
+- El MCP de Supabase está en `read_only=true`.
 - La llave `service_role` nunca llega al navegador ni lleva prefijo `NEXT_PUBLIC_`. Los archivos `.env*` están ignorados por git.
-- `supabase/seed/datos.csv`: 20 taquerías. Las coordenadas están marcadas NO VERIFICADO; antes de la migración de semilla deben salir de OpenStreetMap (script local), no solo contrastarse.
+- `supabase/seed/datos.csv`: 20 taquerías que se siembran tal cual (ver D11 en `docs/decisiones.md`).
+
+## Reglas de la casa
+
+- Propón antes de implementar. Ninguna línea de código sin una spec revisada.
+- Una prueba que solo pasa no prueba nada: rómpela a propósito y confirma que se pone en rojo.
+- RLS en todas las tablas y buckets. Los permisos viven en la base.
+- Secretos fuera del cliente y del repo. La llave service_role nunca va en el navegador ni con prefijo NEXT_PUBLIC_.
+- Lee el SKILL.md de una skill antes de instalarla.
+- André aprueba lo irreversible: migraciones, borrado de datos, cambios de permisos y de producción.
+- Errores visibles: distinguir "no hay datos", "no se encontró" y "no se pudo consultar".
+- Mide antes de concluir: comprueba una hipótesis con datos o una prueba antes de cambiar código.
+- Tono: español, tú, profesional, sin emojis, sin raya larga.
