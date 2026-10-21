@@ -51,3 +51,5 @@ Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto 
 
 10:35 Repo en público para que Isacc pueda revisar el PR sin unirse (repo revisado antes: sin llaves ni secretos). La spec decía que las calificaciones se borran y la arquitectura que no; corregí la spec.
 10:45 PR #1 abierto y enviado a Isacc para revisión. Hasta que conteste no escribo código.
+
+12:05 Paso 4 (Supabase). Isacc no ha revisado el PR entonces decidí avanzar: la base está vacía y cualquier cambio que pida se corrige con otra migración. Supabase CLI con npx (sin instalarla en el proyecto), repo ligado en la rama fase-1/base-de-datos. Seguí la guía con una sola migración (el plan la dividía en varias). Antes de aplicarla, el autor de la migración señaló que el trigger no reaccionaba a borrados y que los usuarios de prueba borran sus calificaciones en cascada; lo agregué. Ensayo con db push --dry-run antes del push real.

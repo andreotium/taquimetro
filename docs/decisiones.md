@@ -44,6 +44,7 @@ Las decisiones salieron de la entrevista con `/the-architect` del 20 de octubre 
 
 - Decisión: un trigger sobre `calificaciones` recalcula las 20 filas de `agregados_taqueria` con cada cambio. El puntaje bayesiano es una función SQL pura que recibe v, R, m y C; el trigger la llama con C = 3.
 - Por qué: es lo más simple que mantiene el ranking correcto.
+- Riesgo aceptado: dos votos al mismo tiempo pueden dejar los agregados un poco desfasados hasta el siguiente voto. No se agrega candado.
 - Descartado: candado para votos simultáneos, tabla `config`, mediana de precio y recálculo incremental.
 
 ## D8. Tiempo real sobre agregados

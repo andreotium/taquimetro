@@ -7,7 +7,7 @@ Basada en `docs/spec.md` y en las decisiones D1 a D12 de `docs/decisiones.md`. L
 1. App web en Next.js, desplegada en Vercel, con datos, login, fotos y tiempo real en un solo proyecto de Supabase (D1).
 2. Cualquiera ve el ranking, el mapa y el detalle; para calificar o subir fotos hay que entrar con enlace mágico (D9).
 3. El navegador escribe directo en Supabase con la sesión del usuario; RLS es la única defensa (D6).
-4. Un trigger recalcula los agregados y el puntaje bayesiano en la base con cada calificación nueva o editada (D7).
+4. Un trigger recalcula los agregados y el puntaje bayesiano en la base con cada calificación nueva, editada o borrada en cascada al borrar un usuario (D7).
 5. La app se suscribe solo a `agregados_taqueria` para reordenar el ranking en vivo, nunca a `calificaciones` (D8).
 
 ## 2. Tablas
@@ -23,12 +23,12 @@ Basada en `docs/spec.md` y en las decisiones D1 a D12 de `docs/decisiones.md`. L
 
 Del CSV se ignoran las columnas "#", "Fuente" y "Estado de verificación".
 
-**calificaciones** (una por usuario por taquería; no se borran)
+**calificaciones** (una por usuario por taquería; no se borran desde la app)
 
 | Columna | Tipo | Nota |
 | --- | --- | --- |
 | id | entero (bigint) | llave primaria |
-| user_id | uuid | apunta al usuario de Auth; se llena solo con el id de la sesión |
+| user_id | uuid | apunta al usuario de Auth con `on delete cascade`: si se borra el usuario, se borran sus calificaciones; se llena solo con el id de la sesión |
 | taqueria_id | bigint | apunta a `taquerias` |
 | salsa, tortilla, carne | entero pequeño (smallint) | obligatorios, validados entre 1 y 5 |
 | puntaje | numérico | columna calculada por la base: promedio de los tres criterios |
@@ -44,7 +44,7 @@ Restricción única en (user_id, taqueria_id): editar actualiza la misma fila.
 | --- | --- | --- |
 | id | bigint | llave primaria |
 | taqueria_id | bigint | apunta a `taquerias` |
-| user_id | uuid | autor; se llena solo con el id de la sesión |
+| user_id | uuid | autor; apunta al usuario de Auth con `on delete cascade`: si se borra el usuario, se borran sus filas (no los archivos de Storage); se llena solo con el id de la sesión |
 | ruta | texto | `<user_id>/<nombre-aleatorio>.<ext>` dentro del bucket |
 | creada_en | timestamptz | se llena sola con la hora actual |
 
@@ -101,7 +101,7 @@ El trigger necesita ver todas las calificaciones, no solo las del usuario que vo
 ## 5. Cómo funciona cada flujo
 
 **Tiempo real**
-1. Una migración agrega `agregados_taqueria` a la publicación de Realtime.
+1. La migración inicial agrega `agregados_taqueria` a la publicación de Realtime.
 2. Al cargar, la app lee el ranking (taquerías con sus agregados).
 3. El navegador se suscribe a los cambios de `agregados_taqueria`.
 4. Alguien califica; el trigger reescribe las filas de agregados.
@@ -132,19 +132,19 @@ app/
 components/               ranking, mapa (Leaflet), detalle, formulario de calificación, fotos, login
 lib/supabase/             clientes de @supabase/ssr para navegador y servidor (solo llave pública)
 supabase/
-  migrations/             tablas, RLS, GRANT, función, trigger, bucket, Realtime
+  migrations/             una sola migración: tablas, RLS, GRANT, función, trigger, bucket, Realtime
   seed.sql                semilla: 20 taquerías y sus agregados en 0 (db push --include-seed)
   seed/datos.csv          las 20 taquerías
-tests/                    pruebas de Vitest (bayesiano y RLS)
+tests/                    pruebas de Vitest (bayesiano, RLS y trigger)
 .env.local                URL y llave pública de Supabase (ignorado por git)
 .env.test.local           llave secreta solo para pruebas (ignorado por git, D3)
 ```
 
 ## 7. Pruebas
 
-Vitest con supabase-js contra el proyecto real (D1, D10). Las pruebas crean dos usuarios con la API de administración (D3) y borran al terminar lo que crearon.
+Vitest con supabase-js contra el proyecto real (D1, D10). Las pruebas crean tres usuarios con la API de administración (D3): A y B para RLS, y C solo para la prueba del trigger, para que borrarlo no afecte a las demás. Al terminar borran lo que crearon.
 
-- La llave secreta solo crea y borra los usuarios de prueba. Todas las comprobaciones usan la llave pública con la sesión de A, la de B o sin sesión; si se hicieran con la llave secreta, RLS no aplicaría y la prueba pasaría siempre.
+- La llave secreta solo crea y borra los usuarios de prueba. Todas las comprobaciones usan la llave pública con la sesión de A, B o C, o sin sesión; si se hicieran con la llave secreta, RLS no aplicaría y la prueba pasaría siempre.
 - Los usuarios de prueba reciben una contraseña aleatoria en cada corrida.
 - La llave secreta vive en una variable sin prefijo `NEXT_PUBLIC_`, y nada en `app/` ni en `lib/` lee `.env.test.local`.
 
@@ -152,20 +152,21 @@ Vitest con supabase-js contra el proyecto real (D1, D10). Las pruebas crean dos 
 | --- | --- | --- |
 | Puntaje bayesiano | Llamando a la función como `anon`, con m fijo, 1 voto de 5 queda debajo de 80 votos de 4.6 | Correrla con C = 0: el voto único de 5 gana y la prueba se pone en rojo |
 | RLS entre dos usuarios | B no lee ni edita la calificación de A; A no puede mover su calificación a otra taquería; nadie puede borrar una calificación; B no borra fotos de A, no sube a la carpeta de A ni registra en `fotos` una ruta de A; se rechaza un `.txt` y un archivo de más de 5 MB | Debilitar una política a mano en el SQL Editor, ver la prueba en rojo y restaurarla |
+| Trigger de agregados | Se leen los votos y promedios de una taquería; C la califica y los votos suben en 1 respecto a los de antes; al borrar a C, votos y promedios regresan a los valores de antes. Comparar contra el valor previo evita fallar si la taquería ya tenía votos reales | Quitar el borrado del trigger en el SQL Editor: los votos se quedan uno arriba y la prueba se pone en rojo |
 | Enlace mágico | El flujo completo funciona en un teléfono real | Prueba manual, sin ruptura |
 
 Cada ruptura se hace una vez, a mano. André la anota en su bitácora.
 
 ## 8. Fases de construcción
 
-1. **Base de datos**: migraciones de las 4 tablas, GRANT, RLS y semilla (20 taquerías y 20 filas de agregados en 0). Se comprueba: los datos aparecen en el panel y un usuario anónimo puede leerlos pero no escribir.
-2. **Función y trigger**: función bayesiana y trigger de agregados. Se comprueba: la prueba del bayesiano pasa y se pone en rojo con C = 0.
-3. **Prueba de RLS**: Vitest con dos usuarios. Se comprueba: pasa, y se pone en rojo al debilitar una política a mano.
+1. **Base de datos** (hecha): una sola migración, `supabase/migrations/20261021174405_esquema_inicial.sql`, con las 4 tablas, GRANT, RLS, función bayesiana, trigger, bucket `fotos` y Realtime; y la semilla en `supabase/seed.sql` (20 taquerías y 20 filas de agregados en 0), aplicada con `supabase db push --include-seed`. Se comprueba: los datos aparecen en el panel y un usuario anónimo puede leerlos pero no escribir.
+2. **Vitest y prueba del bayesiano**: se instala Vitest y se prueba la función bayesiana. Se comprueba: la prueba pasa y se pone en rojo con C = 0.
+3. **Prueba de RLS y del trigger**: Vitest con tres usuarios (A y B para RLS, C para el trigger). Se comprueba: pasa, y se pone en rojo al debilitar una política o quitar el borrado del trigger a mano.
 4. **Ranking y detalle de solo lectura**: la página muestra el ranking ordenado (con desempates) y el detalle, con los tres errores distintos. Se comprueba: `npm run build` y `npm run lint` pasan, y la app se ve en computadora y en celular.
 5. **Login y calificación**: `@supabase/ssr`, ruta de regreso y formulario de calificación con edición. Se comprueba: al calificar en local, el agregado cambia y aparece "pocos votos" con menos de 3 votos.
 6. **Despliegue en Vercel**: variables de entorno y URLs de redirección (las coloca André). Se comprueba: el enlace mágico funciona en producción desde un teléfono real.
 7. **Tiempo real**: suscripción a `agregados_taqueria`. Se comprueba: con dos pantallas abiertas, una califica y la otra reordena el ranking sin recargar.
-8. **Fotos y mapa**: bucket con sus políticas, subida y borrado de fotos, y mapa con Leaflet. Se comprueba: la prueba de RLS cubre el bucket y pasa; un archivo de más de 5 MB se rechaza en pantalla; las 20 taquerías aparecen en el mapa.
+8. **Fotos y mapa**: prueba de RLS del bucket (que ya existe desde la fase 1), subida y borrado de fotos, y mapa con Leaflet. Se comprueba: la prueba de RLS cubre el bucket y pasa; un archivo de más de 5 MB se rechaza en pantalla; las 20 taquerías aparecen en el mapa.
 
 Si falta tiempo, la fase 8 se recorta primero (mapa, luego fotos) y después la 7, según el orden de recorte de la spec.
 
