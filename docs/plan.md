@@ -20,7 +20,7 @@ Reglas:
 
 | # | Qué se hace | Archivos | Cómo se comprueba |
 | --- | --- | --- | --- |
-| 2.1 | Instalar Vitest y supabase-js, agregar el script `test`. [André] crea `.env.test.local` con URL, llave pública y llave secreta | `package.json`, `vitest.config.ts`, `.env.test.local` | `npm run test` corre (sin pruebas todavía); `git status` no muestra `.env.test.local` |
+| 2.1 | Instalar Vitest y supabase-js, agregar el script `test`. [André] crea `.env.test.local` con URL, llave pública y llave secreta | `package.json`, `vitest.config.ts`, `.env.test.example`, `.gitignore` | `npm run test` corre (sin pruebas todavía); `git status` no muestra `.env.test.local` |
 | 2.2 | Prueba del bayesiano: llamada como `anon` con m fijo; 80 votos de 4.6 quedan arriba de 1 voto de 5. [André] la rompe con C = 0 y la anota en su bitácora | `tests/bayesiano.test.ts` | `npm run test` en verde; con C = 0, en rojo |
 
 ## Fase 3. Prueba de RLS y del trigger

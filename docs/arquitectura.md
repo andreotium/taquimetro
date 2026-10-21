@@ -137,7 +137,8 @@ supabase/
   seed/datos.csv          las 20 taquerías
 tests/                    pruebas de Vitest (bayesiano, RLS y trigger)
 .env.local                URL y llave pública de Supabase (ignorado por git)
-.env.test.local           llave secreta solo para pruebas (ignorado por git, D3)
+.env.test.local           URL, llave pública y llave secreta, solo para pruebas (ignorado por git, D3)
+.env.test.example         nombres de las variables de .env.test.local, sin valores
 ```
 
 ## 7. Pruebas
