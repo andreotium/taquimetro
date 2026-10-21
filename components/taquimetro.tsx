@@ -7,6 +7,29 @@ type Pestana = "ranking" | "mapa";
 
 const foco = "focus-visible:outline-2 focus-visible:outline-talavera";
 
+export function Encabezado() {
+  return (
+    <header className="border-b border-linea px-4 py-4 lg:px-6">
+      <h1 className="font-display text-2xl font-bold">Taquímetro</h1>
+      <p className="text-tenue">Las taquerías de CDMX, ordenadas por quienes comen ahí.</p>
+    </header>
+  );
+}
+
+// Página completa cuando no hay ranking que mostrar: "no hay datos" o "no se pudo consultar".
+export function Aviso({ mensaje }: { mensaje: string }) {
+  return (
+    <div className="flex min-h-dvh flex-col">
+      <Encabezado />
+      <main className="px-4 py-6 lg:px-6">
+        <p role="status" className="text-lg">
+          {mensaje}
+        </p>
+      </main>
+    </div>
+  );
+}
+
 // En computadora: ranking, mapa y detalle en tres columnas.
 // En celular: pestañas "Ranking" y "Mapa"; el detalle ocupa toda la vista.
 export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
@@ -29,10 +52,7 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
 
   return (
     <div className="flex min-h-dvh flex-col lg:h-dvh">
-      <header className="border-b border-linea px-4 py-4 lg:px-6">
-        <h1 className="font-display text-2xl font-bold">Taquímetro</h1>
-        <p className="text-tenue">Las taquerías de CDMX, ordenadas por quienes comen ahí.</p>
-      </header>
+      <Encabezado />
 
       {!elegida && (
         <div role="tablist" className="flex border-b border-linea lg:hidden">
@@ -80,7 +100,9 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
                     {t.alcaldia && <span className="block text-sm text-tenue">{t.alcaldia}</span>}
                   </span>
                   <span className="flex shrink-0 flex-col items-end gap-1">
-                    {t.puntaje === null ? (
+                    {!t.agregadosEncontrados ? (
+                      <span className="pt-0.5 text-sm text-tenue">Sin datos</span>
+                    ) : t.puntaje === null ? (
                       <span className="pt-0.5 text-sm text-tenue">Sin votos</span>
                     ) : (
                       <>

@@ -9,6 +9,8 @@ export type Taqueria = FilaRanking & {
   precioPromedio: number | null;
   porcentajeCopia: number | null;
   pocosVotos: boolean;
+  // Falso si falta su fila en agregados_taqueria: es "no se encontró", no "sin votos".
+  agregadosEncontrados: boolean;
 };
 
 const pesos = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" });
@@ -64,6 +66,20 @@ export function Detalle({ taqueria, onVolver }: { taqueria: Taqueria; onVolver?:
         {t.alcaldia && <p className="mt-1 text-tenue">{t.alcaldia}</p>}
       </header>
 
+      {!t.agregadosEncontrados ? (
+        <p role="status" className="text-lg">
+          No se encontraron los votos ni los promedios de esta taquería.
+        </p>
+      ) : (
+        <Resumen taqueria={t} />
+      )}
+    </article>
+  );
+}
+
+function Resumen({ taqueria: t }: { taqueria: Taqueria }) {
+  return (
+    <>
       {t.puntaje === null ? (
         <p className="text-lg">Sin votos todavía.</p>
       ) : (
@@ -99,6 +115,6 @@ export function Detalle({ taqueria, onVolver }: { taqueria: Taqueria; onVolver?:
           </dd>
         </div>
       </dl>
-    </article>
+    </>
   );
 }

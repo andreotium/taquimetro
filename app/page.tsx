@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import { Taquimetro } from "@/components/taquimetro";
+import { Aviso, Taquimetro } from "@/components/taquimetro";
+import { estadoConsulta } from "@/lib/consulta";
 import { ordenarRanking } from "@/lib/ranking";
 import { crearClienteServidor } from "@/lib/supabase/servidor";
 
@@ -15,17 +16,28 @@ async function Ranking() {
       ),
   ]);
 
-  // Los tres mensajes de error completos llegan en la tarea 4.4.
-  if (taquerias.error || agregados.error) return <p className="p-6">No se pudo consultar el ranking.</p>;
+  const estadoTaquerias = estadoConsulta(taquerias);
+  const estadoAgregados = estadoConsulta(agregados);
 
-  const agregadoPorId = new Map(agregados.data.map((a) => [a.taqueria_id, a]));
+  if (estadoTaquerias.estado === "error" || estadoAgregados.estado === "error") {
+    return <Aviso mensaje="No se pudo consultar el ranking. Intenta de nuevo en un momento." />;
+  }
+  // Una lista sin error nunca llega como null, así que aquí solo queda el caso vacío.
+  if (estadoTaquerias.estado !== "ok") {
+    return <Aviso mensaje="No hay datos: todavía no hay taquerías en el ranking." />;
+  }
+
+  // Sin filas de agregados, cada taquería queda como "no se encontró" en su detalle.
+  const listaAgregados = estadoAgregados.estado === "ok" ? estadoAgregados.datos : [];
+  const agregadoPorId = new Map(listaAgregados.map((a) => [a.taqueria_id, a]));
   const filas = ordenarRanking(
-    taquerias.data.map((t) => {
+    estadoTaquerias.datos.map((t) => {
       const a = agregadoPorId.get(t.id);
       return {
         id: t.id,
         nombre: t.nombre,
         alcaldia: t.alcaldia,
+        agregadosEncontrados: a !== undefined,
         votos: a?.votos ?? 0,
         puntaje: a?.puntaje_bayesiano ?? null,
         promSalsa: a?.prom_salsa ?? null,
