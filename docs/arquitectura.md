@@ -87,7 +87,7 @@ Como "exponer tablas nuevas" está apagado, cada tabla necesita dos cosas: el GR
 
 **Función bayesiana.** Una función SQL pura: recibe v (votos), R (promedio de la taquería), m (promedio global) y C (peso), y devuelve `v/(v+C) * R + C/(v+C) * m`. No lee tablas, así que se prueba con números fijos. Si v es 0 o no hay promedio global, devuelve vacío.
 
-**Trigger.** Se dispara después de cada inserción o edición en `calificaciones` (no hay borrados). En cada disparo:
+**Trigger.** Se dispara después de cada inserción, edición o borrado en `calificaciones`. La app no borra calificaciones, pero al borrar un usuario de prueba sus calificaciones se borran en cascada y los agregados deben recalcularse. En cada disparo:
 
 1. Calcula m: el promedio del `puntaje` de todas las calificaciones de todas las taquerías.
 2. Para cada una de las 20 taquerías, calcula votos, promedios de salsa, tortilla y carne, precio promedio y porcentaje de copia.
@@ -173,7 +173,7 @@ Si falta tiempo, la fase 8 se recorta primero (mapa, luego fotos) y después la 
 1. **Tipos de columnas**: los de la sección 2.
 2. **Columnas del CSV**: "#, Taquería (con sucursal), Alcaldía, Latitud, Longitud, Fuente, Estado de verificación". Se usan nombre, alcaldía, latitud y longitud; las otras tres se ignoran.
 3. **Filas de agregados**: la semilla crea las 20 filas con 0 votos; el trigger solo las actualiza.
-4. **Borrar calificación**: no se permite. Sin GRANT ni política de borrado; el trigger solo reacciona a inserción y edición.
+4. **Borrar calificación**: no se permite desde la app. Sin GRANT ni política de borrado. El trigger también reacciona al borrado, que solo ocurre en cascada al borrar un usuario de prueba.
 5. **Campos obligatorios**: precio y copia son obligatorios.
 6. **Fecha de edición**: no hay columna `actualizada_en`.
 7. **Función bayesiana**: GRANT de ejecución a `anon` y `authenticated`; es pura y no lee datos.
