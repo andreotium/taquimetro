@@ -138,7 +138,7 @@ export function Detalle({ taqueria, onVolver }: { taqueria: Taqueria; onVolver?:
           className={`-ml-1 flex items-center gap-1.5 self-start rounded-md px-1 font-semibold text-tinta lg:hidden ${foco}`}
         >
           <ArrowLeft size={18} aria-hidden />
-          Volver al ranking
+          Volver
         </button>
       )}
 

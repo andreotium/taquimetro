@@ -43,10 +43,17 @@ describe("mensajeErrorFoto", () => {
     expect(mensajeErrorFoto({ statusCode: "415" }, "subir")).toBe(mensajeTipo);
   });
 
-  it("con 403 del bucket o 42501 de la tabla, pide volver a entrar", () => {
-    const mensaje = "Tu sesión venció. Recarga la página y vuelve a entrar con tu correo.";
+  // Si la sesión se pierde, la petición llega como anónima y RLS responde 403 o 42501.
+  it("con 403 del bucket o 42501 de la tabla, dice que no hay permiso o que la sesión venció", () => {
+    const mensaje = "No tienes permiso o tu sesión venció. Vuelve a iniciar sesión.";
     expect(mensajeErrorFoto({ statusCode: "403" }, "subir")).toBe(mensaje);
     expect(mensajeErrorFoto({ code: "42501" }, "borrar")).toBe(mensaje);
+  });
+
+  it("con PGRST301 o PGRST303 de la tabla (token inválido o vencido), dice que la sesión venció", () => {
+    const mensaje = "Tu sesión venció. Recarga la página y vuelve a entrar con tu correo.";
+    expect(mensajeErrorFoto({ code: "PGRST301" }, "subir")).toBe(mensaje);
+    expect(mensajeErrorFoto({ code: "PGRST303" }, "borrar")).toBe(mensaje);
   });
 
   it("sin código (falla de red), pide revisar la conexión", () => {

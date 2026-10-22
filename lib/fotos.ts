@@ -35,8 +35,13 @@ export function rutaNueva(userId: string, extension: string) {
 export function mensajeErrorFoto(error: ErrorFoto, accion: "subir" | "borrar"): string {
   if (error.statusCode === "413") return mensajeTamano;
   if (error.statusCode === "415") return mensajeTipo;
-  if (error.statusCode === "403" || error.code === "42501") {
+  // Token inválido o vencido, según la tabla.
+  if (error.code === "PGRST301" || error.code === "PGRST303") {
     return "Tu sesión venció. Recarga la página y vuelve a entrar con tu correo.";
+  }
+  // Si la sesión se pierde, la petición llega como anónima y RLS responde esto mismo.
+  if (error.statusCode === "403" || error.code === "42501") {
+    return "No tienes permiso o tu sesión venció. Vuelve a iniciar sesión.";
   }
   if (!error.statusCode && !error.code) return "No se pudo enviar. Revisa tu conexión e intenta de nuevo.";
   return `No se pudo ${accion} la foto. Intenta de nuevo en un momento.`;
