@@ -3,6 +3,8 @@
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
+import { Star } from "lucide-react";
+import { Alerta } from "@/components/alerta";
 import { mensajeErrorEnvio } from "@/lib/auth";
 import {
   guardarCalificacion,
@@ -15,12 +17,12 @@ import {
 import type { EstadoConsulta } from "@/lib/consulta";
 import { crearClienteNavegador } from "@/lib/supabase/cliente";
 
-// foco, botonPrincipal y alerta también los usa components/fotos.tsx.
-export const foco = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-talavera";
-export const botonPrincipal = `rounded-sm bg-talavera px-4 py-2 font-bold text-white disabled:opacity-60 ${foco}`;
-// Opción de un grupo de radios: el input queda oculto y la etiqueta se pinta al elegirla.
-const opcion = `flex h-11 min-w-11 cursor-pointer items-center justify-center rounded-sm border border-linea px-3 font-bold tabular-nums has-checked:border-talavera has-checked:bg-talavera has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-talavera`;
-export const alerta = "rounded-sm bg-aviso-fondo px-3 py-2 font-bold text-aviso";
+// foco y botonPrincipal también los usa components/fotos.tsx.
+export const foco = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta";
+// El rojo salsa se usa poco: el botón principal es uno de sus pocos lugares.
+export const botonPrincipal = `inline-flex items-center gap-2 rounded-md bg-salsa px-4 py-2 font-semibold text-white hover:brightness-95 disabled:opacity-60 motion-safe:transition ${foco}`;
+// Opción de un grupo de radios: el input queda oculto y la etiqueta se pinta en tinta al elegirla.
+const opcion = `flex h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border border-linea px-3 font-semibold tabular-nums hover:bg-superficie has-checked:border-tinta has-checked:bg-tinta has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-tinta motion-safe:transition-colors`;
 
 type Envio =
   | { estado: "inicio" }
@@ -60,6 +62,7 @@ export function Calificar({ taqueriaId }: { taqueriaId: number }) {
 
       {!abierto ? (
         <button type="button" onClick={() => setAbierto(true)} className={`self-start ${botonPrincipal}`}>
+          <Star size={18} aria-hidden />
           Calificar
         </button>
       ) : sesion ? (
@@ -90,7 +93,7 @@ function FormularioCorreo() {
 
   if (envio.estado === "enviado") {
     return (
-      <p role="status" className="text-lg font-bold">
+      <p role="status" className="text-lg font-semibold">
         Te enviamos un enlace a tu correo. Ábrelo en este mismo navegador para iniciar sesión.
       </p>
     );
@@ -98,7 +101,7 @@ function FormularioCorreo() {
 
   return (
     <form onSubmit={enviar} className="flex flex-col gap-3">
-      <label htmlFor="correo" className="font-bold">
+      <label htmlFor="correo" className="font-semibold">
         Para calificar, entra con tu correo
       </label>
       <input
@@ -108,16 +111,12 @@ function FormularioCorreo() {
         autoComplete="email"
         value={correo}
         onChange={(e) => setCorreo(e.target.value)}
-        className={`rounded-sm border border-linea bg-fondo px-3 py-2 ${foco}`}
+        className={`rounded-md border border-linea bg-fondo px-3 py-2 ${foco}`}
       />
       <button type="submit" disabled={envio.estado === "enviando"} className={`self-start ${botonPrincipal}`}>
         {envio.estado === "enviando" ? "Enviando..." : "Enviar enlace"}
       </button>
-      {envio.estado === "error" && (
-        <p role="alert" className={alerta}>
-          {envio.mensaje}
-        </p>
-      )}
+      {envio.estado === "error" && <Alerta>{envio.mensaje}</Alerta>}
     </form>
   );
 }
@@ -134,11 +133,7 @@ function FormularioCalificacion({
 
   // Sin formulario: un insert chocaría si la calificación sí existe y no se pudo leer.
   if (lectura.estado === "error") {
-    return (
-      <p role="alert" className={alerta}>
-        No se pudo consultar tu calificación. Intenta de nuevo en un momento.
-      </p>
-    );
+    return <Alerta>No se pudo consultar tu calificación. Intenta de nuevo en un momento.</Alerta>;
   }
 
   return <CamposCalificacion taqueriaId={taqueriaId} previa={lectura.estado === "ok" ? lectura.datos : null} />;
@@ -203,11 +198,14 @@ function CamposCalificacion({ taqueriaId, previa }: { taqueriaId: number; previa
   return (
     // noValidate: los mensajes salen de validarCalificacion y no del navegador.
     <form onSubmit={guardar} noValidate className="flex flex-col gap-5">
-      <h3 className="font-display text-xl font-bold">{id === null ? "Tu calificación" : "Edita tu calificación"}</h3>
+      <div>
+        <h3 className="text-xl font-semibold">{id === null ? "Tu calificación" : "Edita tu calificación"}</h3>
+        <p className="mt-1 text-tenue">Califica del 1 al 5.</p>
+      </div>
 
       {criterios.map(({ campo, nombre }) => (
         <fieldset key={campo}>
-          <legend className="mb-2 font-bold">{nombre}, del 1 al 5</legend>
+          <legend className="mb-2 font-semibold">{nombre}</legend>
           <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map((n) => (
               <label key={n} className={opcion}>
@@ -227,7 +225,7 @@ function CamposCalificacion({ taqueriaId, previa }: { taqueriaId: number; previa
       ))}
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="precio" className="font-bold">
+        <label htmlFor="precio" className="font-semibold">
           Precio por taco, de 5 a 150 pesos
         </label>
         <input
@@ -239,12 +237,12 @@ function CamposCalificacion({ taqueriaId, previa }: { taqueriaId: number; previa
           max={150}
           value={borrador.precio}
           onChange={(e) => cambiar({ precio: e.target.value })}
-          className={`w-32 rounded-sm border border-linea bg-fondo px-3 py-2 tabular-nums ${foco}`}
+          className={`w-32 rounded-md border border-linea bg-fondo px-3 py-2 tabular-nums ${foco}`}
         />
       </div>
 
       <fieldset>
-        <legend className="mb-2 font-bold">¿Hay copia (doble tortilla)?</legend>
+        <legend className="mb-2 font-semibold">¿Hay copia (doble tortilla)?</legend>
         <div className="flex gap-2">
           {([true, false] as const).map((valor) => (
             <label key={String(valor)} className={opcion}>
@@ -266,15 +264,11 @@ function CamposCalificacion({ taqueriaId, previa }: { taqueriaId: number; previa
       </button>
 
       {guardado.estado === "guardado" && (
-        <p role="status" className="text-lg font-bold">
+        <p role="status" className="text-lg font-semibold">
           Calificación guardada
         </p>
       )}
-      {guardado.estado === "error" && (
-        <p role="alert" className={alerta}>
-          {guardado.mensaje}
-        </p>
-      )}
+      {guardado.estado === "error" && <Alerta>{guardado.mensaje}</Alerta>}
     </form>
   );
 }
@@ -309,8 +303,8 @@ export function AvisoEnlaceVencido() {
   if (!visible) return null;
 
   return (
-    <p role="alert" className="bg-aviso-fondo px-4 py-3 font-bold text-aviso lg:px-6">
-      El enlace venció o ya se usó. Pide uno nuevo.
-    </p>
+    <div className="border-b border-linea px-4 py-3 lg:px-6">
+      <Alerta>El enlace venció o ya se usó. Pide uno nuevo.</Alerta>
+    </div>
   );
 }

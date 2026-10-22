@@ -2,7 +2,9 @@
 
 import { useEffect, useState, type ChangeEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { alerta, botonPrincipal, foco } from "@/components/calificar";
+import { Camera } from "lucide-react";
+import { Alerta } from "@/components/alerta";
+import { botonPrincipal, foco } from "@/components/calificar";
 import type { EstadoConsulta } from "@/lib/consulta";
 import { borrarFoto, leerFotos, mensajeErrorFoto, rutaNueva, subirFoto, validarArchivo, type Foto } from "@/lib/fotos";
 import { crearClienteNavegador } from "@/lib/supabase/cliente";
@@ -64,15 +66,16 @@ export function Fotos({ taqueriaId, nombre }: { taqueriaId: number; nombre: stri
 
   return (
     <section className="flex flex-col gap-4 border-t border-linea pt-6" aria-label="Fotos">
-      <h3 className="font-display text-xl font-bold">Fotos</h3>
+      <h3 className="text-xl font-semibold">Fotos</h3>
 
       {sesion === null && <p className="text-tenue">Para subir fotos, entra con tu correo desde Calificar.</p>}
       {sesion && (
         <div className="flex flex-col gap-2">
           {/* El input queda oculto y la etiqueta hace de botón. */}
           <label
-            className={`self-start cursor-pointer has-disabled:cursor-default has-disabled:opacity-60 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-talavera ${botonPrincipal}`}
+            className={`self-start cursor-pointer has-disabled:cursor-default has-disabled:opacity-60 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-tinta ${botonPrincipal}`}
           >
+            <Camera size={18} aria-hidden />
             {enviando ? envio.mensaje : "Subir foto"}
             <input
               type="file"
@@ -87,22 +90,16 @@ export function Fotos({ taqueriaId, nombre }: { taqueriaId: number; nombre: stri
       )}
 
       {envio.estado === "hecho" && (
-        <p role="status" className="text-lg font-bold">
+        <p role="status" className="text-lg font-semibold">
           {envio.mensaje}
         </p>
       )}
-      {envio.estado === "error" && (
-        <p role="alert" className={alerta}>
-          {envio.mensaje}
-        </p>
-      )}
+      {envio.estado === "error" && <Alerta>{envio.mensaje}</Alerta>}
 
       {lectura === undefined ? (
         <p className="text-tenue">Cargando fotos...</p>
       ) : lectura.estado === "error" ? (
-        <p role="alert" className={alerta}>
-          No se pudieron consultar las fotos. Intenta de nuevo en un momento.
-        </p>
+        <Alerta>No se pudieron consultar las fotos. Intenta de nuevo en un momento.</Alerta>
       ) : lectura.estado !== "ok" ? (
         // Una lista sin error nunca llega como null, así que aquí solo queda el caso vacío.
         <p>Todavía no hay fotos de esta taquería.</p>
@@ -116,7 +113,7 @@ export function Fotos({ taqueriaId, nombre }: { taqueriaId: number; nombre: stri
                 src={foto.url}
                 alt={`Foto de tacos en ${nombre}`}
                 loading="lazy"
-                className="aspect-square w-full rounded-sm bg-superficie object-cover ring-1 ring-linea"
+                className="aspect-square w-full rounded-md bg-superficie object-cover ring-1 ring-linea"
               />
               {/* La base vuelve a revisar que sea tuya; esto solo esconde el botón en las ajenas. */}
               {sesion && foto.user_id === sesion.user.id && (
@@ -124,7 +121,7 @@ export function Fotos({ taqueriaId, nombre }: { taqueriaId: number; nombre: stri
                   type="button"
                   onClick={() => borrar(foto)}
                   disabled={enviando}
-                  className={`self-start rounded-sm font-bold text-talavera underline underline-offset-4 disabled:opacity-60 ${foco}`}
+                  className={`self-start rounded-sm text-sm font-semibold text-tinta underline underline-offset-4 disabled:opacity-60 ${foco}`}
                 >
                   Borrar
                 </button>

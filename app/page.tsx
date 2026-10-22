@@ -23,7 +23,7 @@ async function Ranking() {
   const estadoAgregados = estadoConsulta(agregados);
 
   if (estadoTaquerias.estado === "error" || estadoAgregados.estado === "error") {
-    return <Aviso mensaje="No se pudo consultar el ranking. Intenta de nuevo en un momento." />;
+    return <Aviso error mensaje="No se pudo consultar el ranking. Intenta de nuevo en un momento." />;
   }
   // Una lista sin error nunca llega como null, así que aquí solo queda el caso vacío.
   if (estadoTaquerias.estado !== "ok") {

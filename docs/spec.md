@@ -70,12 +70,17 @@ Además, el tiempo real no debe exponer calificaciones privadas: la app se suscr
 
 ## Diseño
 
-- App web minimalista, fácil de entender a primera vista.
-- Colores claros, buen contraste, tipografía legible y sin adornos.
+- App web moderna, limpia y fácil de entender a primera vista, sin verse cargada.
+- Fondo blanco, texto casi negro, grises cálidos y un solo acento, rojo salsa, usado poco (botón principal, taquería elegida y marcadores del mapa). Dorado solo para la corona del #1. Buen contraste.
+- Una sola tipografía, Geist. Íconos de Lucide; el taco (de Hugeicons) y la tortilla (propia) siguen su mismo estilo de línea.
+- El #1 del ranking lleva corona; el puntaje va en una pastilla con estrella y abajo, en una sola línea gris, "1 voto · pocos votos".
+- En el detalle, el puntaje es un tacómetro de medio círculo que se llena en rojo salsa; precio y copia van como dos datos compactos lado a lado.
+- Mapa base en gris. Al elegir una taquería, el mapa se desliza hasta ella y se acerca si se ve desde lejos.
+- Transiciones cortas al elegir taquería, desactivadas para quien pide menos movimiento.
 - En computadora: ranking a la izquierda, mapa al centro y detalle a la derecha.
 - En celular: pestañas "Ranking" y "Mapa"; el detalle se abre en su propia vista.
 - No hay mockup de referencia. El diseño se hace a partir de esta descripción.
-- Los errores son visibles y distinguen "no hay datos", "no se encontró" y "no se pudo consultar".
+- Los errores son visibles y distinguen "no hay datos", "no se encontró" y "no se pudo consultar". Los errores llevan ícono de alerta, fondo rosado suave y texto oscuro, no solo color.
 
 ## Datos semilla
 

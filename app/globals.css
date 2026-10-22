@@ -1,22 +1,92 @@
 @import "tailwindcss";
 
-/* Paleta clara: blanco, azul pálido de azulejo, tinta, azul talavera y amarillo maíz. */
+/* Paleta clara: blanco, tinta casi negra, grises cálidos y un solo acento, rojo salsa.
+   El dorado es solo para la corona del #1. Los errores van en rosado con ícono, no en rojo salsa. */
 @theme {
   --color-fondo: #ffffff;
-  --color-superficie: #f2f5fa;
-  --color-linea: #dde3ee;
-  --color-tinta: #1b2433;
-  --color-tenue: #556074;
-  --color-talavera: #2546a8;
-  --color-maiz: #f2c230;
-  --color-aviso: #7a5200;
-  --color-aviso-fondo: #fff4d6;
-  --font-display: var(--font-bricolage), system-ui, sans-serif;
-  --font-sans: var(--font-atkinson), system-ui, sans-serif;
+  --color-superficie: #f7f6f4;
+  --color-linea: #e7e5e2;
+  --color-tinta: #1c1917;
+  --color-tenue: #6b6560;
+  --color-salsa: #cf3f1e;
+  --color-salsa-suave: #fdf1ec;
+  --color-dorado: #b8860b;
+  --color-error: #9f1239;
+  --color-error-fondo: #fff1f2;
+  --color-error-borde: #fecdd3;
+  --font-sans: var(--font-geist), system-ui, sans-serif;
+  --animate-aparecer: aparecer 200ms ease-out;
+
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
 }
 
 body {
   background: var(--color-fondo);
   color: var(--color-tinta);
   font-family: var(--font-sans);
+}
+
+/* Tailwind v4 deja los botones con el cursor normal: todo lo que se toca lleva manita. */
+@layer base {
+  button:not(:disabled),
+  [role="tab"],
+  summary {
+    cursor: pointer;
+  }
+}
+
+/* Mapa base en gris para que solo resalten los marcadores. Afecta los mosaicos, no los marcadores. */
+.leaflet-tile-pane {
+  filter: grayscale(1) brightness(1.05) contrast(0.9);
+}
+
+/* Marcadores del mapa: Leaflet los pinta como HTML (divIcon), así que leen estas variables. */
+.marcador {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-fondo);
+  border-radius: 9999px;
+  background: var(--color-salsa);
+  color: var(--color-fondo);
+  box-shadow: 0 1px 3px rgb(28 25 23 / 0.35);
+  transition: transform 150ms ease-out;
+}
+
+.marcador svg {
+  width: 60%;
+  height: 60%;
+}
+
+/* El #1 lleva la corona adentro y un borde dorado más grueso. */
+.marcador-primero {
+  border: 3px solid var(--color-dorado);
+}
+
+.marcador-elegido {
+  box-shadow:
+    0 0 0 3px var(--color-fondo),
+    0 0 0 6px var(--color-salsa),
+    0 2px 6px rgb(28 25 23 / 0.35);
+}
+
+.marcador:hover {
+  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marcador {
+    transition: none;
+  }
+
+  .marcador:hover {
+    transform: none;
+  }
 }

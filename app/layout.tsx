@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
-import { Atkinson_Hyperlegible_Next, Bricolage_Grotesque } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 
-// Bricolage para nombres y puntajes; Atkinson, hecha para leerse fácil, para el texto.
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
-  subsets: ["latin"],
-});
-
-const atkinson = Atkinson_Hyperlegible_Next({
-  variable: "--font-atkinson",
+// Una sola familia para todo; la jerarquía sale del peso y el tamaño.
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
 });
 
@@ -20,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" className={`${bricolage.variable} ${atkinson.variable} h-full antialiased`}>
+    <html lang="es" className={`${geist.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
