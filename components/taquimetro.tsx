@@ -162,9 +162,10 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
           <p className="text-tenue">Aquí irá el mapa de las taquerías.</p>
         </section>
 
+        {/* relative: los inputs sr-only (absolute) quedan dentro de esta columna y no estiran la página. */}
         <section
           aria-label="Detalle"
-          className={`${enCelular.detalle} px-4 py-6 lg:block lg:overflow-y-auto lg:border-l lg:border-linea lg:px-8`}
+          className={`${enCelular.detalle} relative px-4 py-6 lg:block lg:overflow-y-auto lg:border-l lg:border-linea lg:px-8`}
         >
           {/* La key reinicia el detalle (formulario, mensajes y fotos) al cambiar de taquería. */}
           {elegida ? (
