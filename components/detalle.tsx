@@ -5,6 +5,8 @@ import type { FilaRanking } from "@/lib/ranking";
 // Una fila del ranking con todo lo que muestra el detalle.
 export type Taqueria = FilaRanking & {
   alcaldia: string | null;
+  latitud: number | null;
+  longitud: number | null;
   promSalsa: number | null;
   promTortilla: number | null;
   promCarne: number | null;

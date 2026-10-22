@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { AvisoEnlaceVencido } from "@/components/calificar";
 import { Detalle, EtiquetaPocosVotos, textoVotos, type Taqueria } from "@/components/detalle";
@@ -8,6 +9,12 @@ import { agruparAvisos } from "@/lib/agrupar";
 import { crearClienteNavegador } from "@/lib/supabase/cliente";
 
 type Pestana = "ranking" | "mapa";
+
+// Leaflet usa window al cargarse: el mapa se importa solo en el navegador, sin prerender.
+const Mapa = dynamic(() => import("@/components/mapa").then((m) => m.Mapa), {
+  ssr: false,
+  loading: () => <p className="m-auto text-tenue">Cargando el mapa...</p>,
+});
 
 const foco = "focus-visible:outline-2 focus-visible:outline-talavera";
 
@@ -152,14 +159,13 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
           </ol>
         </section>
 
-        {/* El mapa llega en la fase 8; por ahora solo se reserva su espacio. */}
         <section
           id="panel-mapa"
           role="tabpanel"
           aria-labelledby="pestana-mapa"
-          className={`${enCelular.mapa} min-h-80 flex-1 items-center justify-center bg-superficie p-6 lg:flex`}
+          className={`${enCelular.mapa} min-h-[60dvh] flex-1 flex-col bg-superficie lg:flex lg:min-h-0`}
         >
-          <p className="text-tenue">Aquí irá el mapa de las taquerías.</p>
+          <Mapa taquerias={taquerias} elegidaId={elegidaId} onElegir={elegir} />
         </section>
 
         {/* relative: los inputs sr-only (absolute) quedan dentro de esta columna y no estiran la página. */}

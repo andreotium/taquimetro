@@ -72,7 +72,7 @@ Además, el tiempo real no debe exponer calificaciones privadas: la app se suscr
 
 - App web minimalista, fácil de entender a primera vista.
 - Colores claros, buen contraste, tipografía legible y sin adornos.
-- En computadora: ranking a la izquierda, mapa a la derecha y detalle en un panel.
+- En computadora: ranking a la izquierda, mapa al centro y detalle a la derecha.
 - En celular: pestañas "Ranking" y "Mapa"; el detalle se abre en su propia vista.
 - No hay mockup de referencia. El diseño se hace a partir de esta descripción.
 - Los errores son visibles y distinguen "no hay datos", "no se encontró" y "no se pudo consultar".

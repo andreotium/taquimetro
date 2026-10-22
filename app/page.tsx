@@ -11,7 +11,7 @@ async function Ranking() {
   await io();
   const supabase = await crearClienteServidor();
   const [taquerias, agregados] = await Promise.all([
-    supabase.from("taquerias").select("id, nombre, alcaldia"),
+    supabase.from("taquerias").select("id, nombre, alcaldia, latitud, longitud"),
     supabase
       .from("agregados_taqueria")
       .select(
@@ -40,6 +40,8 @@ async function Ranking() {
         id: t.id,
         nombre: t.nombre,
         alcaldia: t.alcaldia,
+        latitud: t.latitud,
+        longitud: t.longitud,
         agregadosEncontrados: a !== undefined,
         votos: a?.votos ?? 0,
         puntaje: a?.puntaje_bayesiano ?? null,
