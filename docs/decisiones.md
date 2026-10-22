@@ -72,5 +72,12 @@ Las decisiones salieron de la entrevista con `/the-architect` del 20 de octubre 
 
 ## D12. Diseño minimalista sin mockup
 
-- Decisión: app web minimalista, de colores claros y fácil de entender. En computadora: ranking, mapa y detalle lado a lado. En celular: pestañas "Ranking" y "Mapa" y el detalle en su propia vista. No se usa mockup de referencia.
+- Decisión: app web moderna, limpia y fácil de entender, sin verse cargada. En computadora: ranking, mapa y detalle lado a lado. En celular: pestañas "Ranking" y "Mapa" y el detalle en su propia vista. No se usa mockup de referencia.
+- Colores: fondo blanco, texto casi negro, grises cálidos y un solo acento, rojo salsa (rojo anaranjado), usado poco: botón principal, taquería elegida y marcadores del mapa. El dorado es solo para la corona del #1. Los errores llevan ícono de alerta, fondo rosado suave y texto oscuro, para no confundirse con el acento.
+- Tipografía: una sola familia, Geist, con `next/font`.
+- Íconos: `lucide-react`. Lucide no trae taco ni tortilla, y ambos están en `components/icono-taco.tsx` con el trazo de 2 de Lucide. El taco es `taco-01` de Hugeicons (licencia MIT), copiado como SVG sin instalar paquete. La tortilla es un dibujo propio, porque ninguna librería de línea libre (Iconify, Tabler, Phosphor, Material Design Icons) tiene una.
+- Puntaje en el detalle: un tacómetro de medio círculo que se llena en rojo salsa, con el número en medio.
+- Mapa base: mosaicos de OpenStreetMap en gris por CSS, para que solo resalten los marcadores. Al elegir una taquería, el mapa se desliza hasta ella y, si se ve desde lejos, se acerca a nivel colonia (zoom 15).
+- Transiciones cortas al elegir taquería, desactivadas con `prefers-reduced-motion`.
 - Por qué: el mockup de Claude Design estaba pensado como app de celular y era difícil de entender.
+- Descartado: paleta azul talavera y amarillo maíz, y las tipografías Bricolage Grotesque y Atkinson Hyperlegible (tarea 4.3). CARTO Positron como mapa base: desde los términos del 29 de septiembre de 2026 pide una llave (sin ella muestra una marca de agua).

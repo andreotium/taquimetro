@@ -1,0 +1,46 @@
+import type { SVGProps } from "react";
+
+type Props = SVGProps<SVGSVGElement> & { size?: number };
+
+// Lucide no trae taco ni tortilla. Mismo marco que Lucide: cuadro de 24, trazo de 2 y puntas redondas.
+function Icono({ size = 24, children, ...props }: Props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      {...props}
+    >
+      {children}
+    </svg>
+  );
+}
+
+// Trazos de "taco-01" de Hugeicons (https://hugeicons.com), licencia MIT, copyright Hugeicons.
+// Original con trazo de 1.5; aquí va con el de 2 de Lucide.
+export function IconoTaco(props: Props) {
+  return (
+    <Icono {...props}>
+      <path d="M12 9c-4.32 0-8.01 2.937-9.466 7.072c-.528 1.498-.791 2.246-.185 3.087C2.954 20 3.943 20 5.92 20h12.16c1.978 0 2.967 0 3.572-.841c.606-.841.343-1.59-.184-3.087C20.01 11.937 16.32 9 12 9Z" />
+      <path d="M21.33 15a3.24 3.24 0 0 0-.24-4.222a3.3 3.3 0 0 1-.898-1.975c-.148-1.677-1.566-3.016-3.344-3.144l-.204-.015a4 4 0 0 1-2.153-.812c-1.445-1.11-3.537-1.11-4.981 0a4 4 0 0 1-2.154.812l-.204.015c-1.778.128-3.196 1.467-3.344 3.144a3.3 3.3 0 0 1-.898 1.975A3.24 3.24 0 0 0 2.67 15" />
+      <path d="M16.125 14H16m.25 0a.25.25 0 1 1-.5 0a.25.25 0 0 1 .5 0Zm1.875 3H18m.25 0a.25.25 0 1 1-.5 0a.25.25 0 0 1 .5 0Zm-5.125-1H13m.25 0a.25.25 0 1 1-.5 0a.25.25 0 0 1 .5 0Z" />
+    </Icono>
+  );
+}
+
+// Tortilla vista desde arriba, con puntitos de tostado.
+export function IconoTortilla(props: Props) {
+  return (
+    <Icono {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 8.5h.01M15 8h.01M12 12h.01M8 15h.01M15.5 15h.01" />
+    </Icono>
+  );
+}

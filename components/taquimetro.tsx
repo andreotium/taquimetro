@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { AvisoEnlaceVencido } from "@/components/calificar";
-import { Detalle, EtiquetaPocosVotos, textoVotos, type Taqueria } from "@/components/detalle";
+import { Crown, Star } from "lucide-react";
+import { Alerta } from "@/components/alerta";
+import { AvisoEnlaceVencido, foco } from "@/components/calificar";
+import { Detalle, textoVotos, type Taqueria } from "@/components/detalle";
+import { IconoTaco } from "@/components/icono-taco";
 import { agruparAvisos } from "@/lib/agrupar";
 import { crearClienteNavegador } from "@/lib/supabase/cliente";
 
@@ -16,28 +19,64 @@ const Mapa = dynamic(() => import("@/components/mapa").then((m) => m.Mapa), {
   loading: () => <p className="m-auto text-tenue">Cargando el mapa...</p>,
 });
 
-const foco = "focus-visible:outline-2 focus-visible:outline-talavera";
-
-export function Encabezado() {
+// Sin resumen (cuando no hay ranking) el encabezado muestra solo el logo.
+export function Encabezado({ resumen }: { resumen?: { taquerias: number; votos: number } }) {
   return (
-    <header className="border-b border-linea px-4 py-4 lg:px-6">
-      <h1 className="font-display text-2xl font-bold">Taquímetro</h1>
-      <p className="text-tenue">Las taquerías de CDMX, ordenadas por quienes comen ahí.</p>
+    <header className="flex items-center justify-between gap-4 border-b border-linea px-4 py-3 lg:px-6">
+      <div className="flex items-center gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-salsa text-white">
+          <IconoTaco size={24} />
+        </span>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">Taquímetro</h1>
+          <p className="hidden text-sm text-tenue lg:block">Las taquerías de CDMX, ordenadas por quienes comen ahí.</p>
+        </div>
+      </div>
+      {resumen && (
+        <p className="text-right text-sm text-tenue tabular-nums">
+          {resumen.taquerias === 1 ? "1 taquería" : `${resumen.taquerias} taquerías`} · {textoVotos(resumen.votos)}
+        </p>
+      )}
     </header>
   );
 }
 
-// Página completa cuando no hay ranking que mostrar: "no hay datos" o "no se pudo consultar".
-export function Aviso({ mensaje }: { mensaje: string }) {
+// Página completa cuando no hay ranking que mostrar: "no hay datos" (neutral) o "no se pudo consultar" (error).
+export function Aviso({ mensaje, error = false }: { mensaje: string; error?: boolean }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <Encabezado />
       <main className="px-4 py-6 lg:px-6">
-        <p role="status" className="text-lg">
-          {mensaje}
-        </p>
+        {error ? (
+          <Alerta className="text-lg">{mensaje}</Alerta>
+        ) : (
+          <p role="status" className="text-lg">
+            {mensaje}
+          </p>
+        )}
       </main>
     </div>
+  );
+}
+
+// #1 con corona dorada; #2 y #3 con el número en un círculo; los demás, solo el número.
+// Sin votos no hay podio: el orden es alfabético y solo se muestra el número.
+function Lugar({ lugar, conVotos }: { lugar: number; conVotos: boolean }) {
+  if (lugar === 1 && conVotos) {
+    return (
+      <span className="flex size-7 shrink-0 items-center justify-center text-dorado">
+        <Crown size={22} className="fill-dorado/20" aria-label="Primer lugar" />
+      </span>
+    );
+  }
+  return (
+    <span
+      className={`flex size-7 shrink-0 items-center justify-center rounded-full text-sm tabular-nums ${
+        lugar <= 3 && conVotos ? "border border-tenue/50 font-semibold text-tinta" : "text-tenue"
+      }`}
+    >
+      {lugar}
+    </span>
   );
 }
 
@@ -90,9 +129,11 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
     window.scrollTo({ top: 0 });
   }
 
+  const resumen = { taquerias: taquerias.length, votos: taquerias.reduce((suma, t) => suma + t.votos, 0) };
+
   return (
     <div className="flex min-h-dvh flex-col lg:h-dvh">
-      <Encabezado />
+      <Encabezado resumen={resumen} />
       <AvisoEnlaceVencido />
 
       {!elegida && (
@@ -106,8 +147,8 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
               aria-selected={pestana === p}
               aria-controls={`panel-${p}`}
               onClick={() => setPestana(p)}
-              className={`flex-1 py-3 font-bold ${foco} focus-visible:-outline-offset-2 ${
-                pestana === p ? "text-talavera shadow-[inset_0_-3px_0_var(--color-talavera)]" : "text-tenue"
+              className={`flex-1 py-3 font-semibold ${foco} focus-visible:-outline-offset-2 ${
+                pestana === p ? "text-tinta shadow-[inset_0_-2px_0_var(--color-tinta)]" : "text-tenue"
               }`}
             >
               {p === "ranking" ? "Ranking" : "Mapa"}
@@ -123,7 +164,9 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
           aria-labelledby="pestana-ranking"
           className={`${enCelular.ranking} lg:block lg:overflow-y-auto lg:border-r lg:border-linea`}
         >
-          <h2 className="hidden px-6 pt-5 pb-2 font-display text-lg font-bold lg:block">Ranking</h2>
+          <h2 className="hidden px-6 pt-5 pb-2 text-sm font-semibold tracking-wide text-tenue uppercase lg:block">
+            Ranking
+          </h2>
           <ol>
             {taquerias.map((t, i) => (
               <li key={t.id} className="border-b border-linea">
@@ -131,25 +174,32 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
                   type="button"
                   onClick={() => elegir(t.id)}
                   aria-current={t.id === elegidaId ? "true" : undefined}
-                  className={`flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-superficie lg:px-6 ${foco} focus-visible:-outline-offset-2 ${
-                    t.id === elegidaId ? "bg-superficie shadow-[inset_4px_0_0_var(--color-talavera)]" : ""
+                  className={`flex w-full items-start gap-3 px-4 py-3 text-left lg:px-6 ${foco} focus-visible:-outline-offset-2 motion-safe:transition-colors ${
+                    t.id === elegidaId
+                      ? "bg-salsa-suave shadow-[inset_3px_0_0_var(--color-salsa)]"
+                      : "hover:bg-superficie"
                   }`}
                 >
-                  <span className="w-6 shrink-0 pt-0.5 text-right tabular-nums text-tenue">{i + 1}</span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-display text-lg font-semibold leading-snug">{t.nombre}</span>
+                  <Lugar lugar={i + 1} conVotos={t.puntaje !== null} />
+                  <span className="min-w-0 flex-1 pt-0.5">
+                    <span className="block font-semibold leading-snug">{t.nombre}</span>
                     {t.alcaldia && <span className="block text-sm text-tenue">{t.alcaldia}</span>}
                   </span>
                   <span className="flex shrink-0 flex-col items-end gap-1">
                     {!t.agregadosEncontrados ? (
-                      <span className="pt-0.5 text-sm text-tenue">Sin datos</span>
+                      <span className="pt-1 text-sm text-tenue">Sin datos</span>
                     ) : t.puntaje === null ? (
-                      <span className="pt-0.5 text-sm text-tenue">Sin votos</span>
+                      <span className="pt-1 text-sm text-tenue">Sin votos</span>
                     ) : (
                       <>
-                        <span className="font-display text-lg font-bold tabular-nums">{t.puntaje.toFixed(2)}</span>
-                        <span className="text-sm text-tenue">{textoVotos(t.votos)}</span>
-                        {t.pocosVotos && <EtiquetaPocosVotos />}
+                        <span className="flex items-center gap-1 rounded-full bg-superficie px-2.5 py-0.5 font-semibold tabular-nums ring-1 ring-linea">
+                          <Star size={14} className="fill-tinta" aria-hidden />
+                          {t.puntaje.toFixed(2)}
+                        </span>
+                        <span className="text-sm whitespace-nowrap text-tenue">
+                          {textoVotos(t.votos)}
+                          {t.pocosVotos && " · pocos votos"}
+                        </span>
                       </>
                     )}
                   </span>
