@@ -90,10 +90,11 @@ Rupturas a propósito: con el límite a 6 MB, la prueba aceptó 5 MB + 1 byte; s
 
 Probé a mano: subir, borrar, vista sin sesión (incógnito) y celular. El explorador de archivos ya filtra a JPG y PNG (primera capa); la app y el bucket son la segunda y la tercera. Pendiente para mañana: Next.js muestra "3 Issues" en desarrollo.
 
-Día 3
+## 2026-10-22
+
 09:30 Bug: al elegir taquerías se acumulaban bloques de "Sesión iniciada" y crecía el contador de issues. Usé systematic-debugging: Calificar y Fotos tenían la misma key en el mismo nivel, y React pisaba una con la otra al cambiar de taquería y nunca borraba el Calificar viejo. Empezó en la 8.2, cuando se agregó Fotos junto a Calificar. Solución: una sola key en el detalle completo. Aprendizaje: las 68 pruebas no lo detectaron porque no hay pruebas de componentes; lo encontró la prueba a mano.
 
-9:50 Mejoras al detalle. (1) El formulario de calificar aparece al instante: la calificación propia se lee al abrir el detalle, no al tocar el botón. (2) Bug visual con systematic-debugging: con sesión, la página se estiraba con un espacio blanco. Causa: los controles invisibles (sr-only) del formulario y de "Subir foto" se acomodaban contra la página entera porque la columna no era su contenedor. Arreglo: una sola clase, relative, en la columna del detalle.
+09:50 Mejoras al detalle. (1) El formulario de calificar aparece al instante: la calificación propia se lee al abrir el detalle, no al tocar el botón. (2) Bug visual con systematic-debugging: con sesión, la página se estiraba con un espacio blanco. Causa: los controles invisibles (sr-only) del formulario y de "Subir foto" se acomodaban contra la página entera porque la columna no era su contenedor. Arreglo: una sola clase, relative, en la columna del detalle.
 
 10:25 Paso 6. Proyecto en Vercel desde mi equipo personal (Hobby), no en el equipo Pro ni en la organización de Otium; la app de Vercel en GitHub solo con acceso a taquimetro. Variables: URL y publishable key (con mi nombre, no el ANON_KEY de la guía); la secreta nunca va a Vercel. No conecté la integración de Supabase de Vercel. En Supabase: Site URL de producción y URLs de regreso exactas (localhost y producción). No agregué el comodín para previews: mantengo la decisión de URLs exactas, y la casilla de previews no necesita login. Salté vercel env pull porque sobrescribiría mi .env.local. Login probado en producción desde mi celular.
 
@@ -101,11 +102,9 @@ Día 3
 
 10:50 Paso 6 completo. PR del mapa: Vercel comentó con una URL de preview y publicó una versión aparte de la rama; la revisé antes del merge. Después del merge, producción se actualizó sola. El aviso amarillo de GitHub no apareció; abrí el PR con el link que da git push.
 
-11:30 Rediseño (5.4) terminado. El taco es taco-01 de Hugeicons (MIT), pegado como SVG sin instalar paquetes; la tortilla es propia porque ninguna librería la tiene. Descarté CARTO porque desde el 29/09 pide llave y me quedé con OpenStreetMap a color. Un espacio en blanco y un salto en el mapa resultaron ser la ventana de Playwright; en mi navegador todo se veía bien, así que no se tocó código.
+12:05 Rediseño (5.4) terminado. El taco es taco-01 de Hugeicons (MIT), pegado como SVG sin instalar paquetes; la tortilla es propia porque ninguna librería la tiene. Descarté CARTO porque desde el 29/09 pide llave y me quedé con OpenStreetMap en gris. Un espacio en blanco y un salto en el mapa resultaron ser la ventana de Playwright; en mi navegador todo se veía bien, así que no se tocó código.
 
 12:36 Paso 7, code review. Un subagente revisó todo main: nada crítico, 2 importantes y 8 menores. Con receiving-code-review atendí 8, uno a medias, y rechacé el hook de sesión porque no aporta al usuario. Tarea A: la base aceptaba rutas de fotos con ".." porque la política solo revisaba la primera carpeta. Prueba en rojo, migración con un check del formato UUID, db push con --dry-run primero, prueba en verde. 75/75.
-
-12:50 Tarea B del code review: cerrar sesión (solo este dispositivo), mensajes de sesión vencida separados de permiso denegado (con TDD), aviso de enlace vencido que se cierra, "Volver", borrar foto en dos toques y páginas de error y 404 en español. La página de error la probé lanzando un error a propósito. 77/77. Probé a mano cerrar sesión y borrar fotos.
 
 12:55 Tareas B y C del code review. B: cerrar sesión (solo este dispositivo), mensajes de sesión vencida separados de permiso denegado (con TDD), aviso de enlace vencido que se cierra, "Volver", borrar foto en dos toques y páginas de error y 404 en español; la de error la probé rompiendo la página a propósito. C: README en español, arquitectura y plan al día, CLAUDE.md actualizado. 77/77. Probé a mano cerrar sesión y borrar fotos.
 
@@ -114,3 +113,9 @@ Día 3
 13:40 QA desde la app con el navegador de Claude. Reportó como grave que el puntaje no coincide con las barras y supuso que era el precio. Lo medí calificando Los Pastorcitos: Los Cocuyos subió de 3.67 a 3.88 sin votos nuevos. Es la fórmula bayesiana, que mezcla cada taquería con el promedio general. Claude se equivocó de hipótesis. Los medios y menores quedan fuera de alcance.
 
 14:00 Ronda de arreglos del QA: avisos de estado en caja gris, "Sí, borrar" en rojo, la lista sigue al mapa, "Editar calificación" si ya calificaste y la nota "Ajustado por número de votos". El QA encontró un bug real en producción: en celular, Mapa, luego Ranking, luego elegir una taquería tumbaba la app. Con systematic-debugging se vio que el mapa oculto medía 0×0 y flyTo dividía entre 0. Arreglo en lib/mapa.ts con TDD: 2 pruebas en rojo y luego en verde. La página de error que agregué en la tarea B atrapó el fallo. 82/82. Lo revisé a mano con sesión y en celular.
+
+14:58 Paso 8: tarea programada de lunes a viernes a las 17:45 que resume commits y PRs. Las corridas programadas no reciben add_repo y fallaron dos veces; la tarea reportó "no se pudo consultar" en vez de inventar. Como el repo es público, cambié el prompt para leer la API pública de GitHub y funcionó. Comparado con esta bitácora, el resumen sabe qué cambió pero no por qué. Descarté el hook de pruebas antes de cada commit: las pruebas escriben en producción y tardan unos 12 s.
+
+16:20 Skill propia revisar-migracion con writing-skills y TDD. Sin la skill, Claude ya encontraba casi todo por CLAUDE.md; le faltaba detectar migraciones aplicadas editadas, un formato fijo con líneas y detenerse antes del push. Con la skill encontró los 7 errores sembrados y no marcó falsos positivos en la migración buena. Probada en sesión nueva: se activó sola con una petición normal (y avisó que la migración ya estaba aplicada) y con /revisar-migracion.
+
+17:00 Paso 9: presentación armada en la app de Claude a partir de esta bitácora, decisiones, arquitectura y el diagrama. 10 diapositivas; la última es la demo en vivo. La reviso y la edito yo antes de presentar.
