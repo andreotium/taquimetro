@@ -1,4 +1,5 @@
 import { Calificar } from "@/components/calificar";
+import { Fotos } from "@/components/fotos";
 import type { FilaRanking } from "@/lib/ranking";
 
 // Una fila del ranking con todo lo que muestra el detalle.
@@ -77,6 +78,9 @@ export function Detalle({ taqueria, onVolver }: { taqueria: Taqueria; onVolver?:
       ) : (
         <Resumen taqueria={t} />
       )}
+
+      {/* La key borra los mensajes y vuelve a leer las fotos al cambiar de taquería. */}
+      <Fotos key={t.id} taqueriaId={t.id} nombre={t.nombre} />
     </article>
   );
 }

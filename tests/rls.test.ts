@@ -1,11 +1,24 @@
+import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
-import { borrarUsuario, crearUsuario, sesionComo, sinSesion, type UsuarioDePrueba } from "./ayudantes";
+import {
+  borrarFotosDe,
+  borrarUsuario,
+  crearUsuario,
+  sesionComo,
+  sinSesion,
+  type UsuarioDePrueba,
+} from "./ayudantes";
 
 // Código de Postgres para "permiso denegado". Se compara contra él para que un error
 // de otro tipo (por ejemplo, una columna obligatoria vacía) no haga pasar la prueba.
 const PERMISO_DENEGADO = "42501";
+
+// Códigos HTTP con que Storage rechaza una subida; mismo propósito que PERMISO_DENEGADO.
+const STORAGE_RLS = "403";
+const STORAGE_TIPO = "415";
+const STORAGE_TAMANO = "413";
 
 const calificacionDeA = { salsa: 4, tortilla: 4, carne: 4, precio: 25, copia: true };
 
@@ -13,6 +26,7 @@ const calificacionDeA = { salsa: 4, tortilla: 4, carne: 4, precio: 25, copia: tr
 // y sus calificaciones se van en cascada.
 const vivos: UsuarioDePrueba[] = [];
 
+let usuarioA: UsuarioDePrueba;
 let clienteA: SupabaseClient<Database>;
 let clienteB: SupabaseClient<Database>;
 let idCalificacion: number;
@@ -29,6 +43,7 @@ async function releerComoA() {
 beforeAll(async () => {
   const [a, b] = await Promise.all((["A", "B"] as const).map(crearUsuario));
   vivos.push(a, b);
+  usuarioA = a;
   [clienteA, clienteB] = await Promise.all([sesionComo(a), sesionComo(b)]);
 
   // No hay taquerías de prueba: solo existen las 20 de la semilla y nadie puede insertar más.
@@ -51,8 +66,13 @@ beforeAll(async () => {
   idCalificacion = data!.id;
 });
 
+// Primero los archivos, porque no se van en cascada; los usuarios se borran aunque eso falle.
 afterAll(async () => {
-  await Promise.all(vivos.map(borrarUsuario));
+  try {
+    await Promise.all(vivos.map(borrarFotosDe));
+  } finally {
+    await Promise.all(vivos.map(borrarUsuario));
+  }
 });
 
 describe("RLS de calificaciones", () => {
@@ -108,5 +128,120 @@ describe("RLS de calificaciones", () => {
       .insert({ taqueria_id: otraTaqueria, ...calificacionDeA });
 
     expect(error?.code).toBe(PERMISO_DENEGADO);
+  });
+});
+
+describe("RLS de fotos", () => {
+  let taqueriaDeFotos: number;
+  let rutaDeA: string;
+  let idFotoDeA: number;
+
+  // Storage solo revisa el tipo que declara quien sube, no el contenido: bastan unos bytes.
+  const png = () => new Blob([new Uint8Array([137, 80, 78, 71])], { type: "image/png" });
+  const rutaEnCarpetaDeA = (extension: string) => `${usuarioA.id}/${randomUUID()}.${extension}`;
+
+  // Se lista la carpeta en vez de usar exists(): con un archivo que no está, exists() da error 400.
+  async function existeComoA(ruta: string) {
+    const { data, error } = await clienteA.storage.from("fotos").list(usuarioA.id);
+    expect(error).toBeNull();
+    return data!.some((archivo) => `${usuarioA.id}/${archivo.name}` === ruta);
+  }
+
+  function codigoStorage(error: Error | null) {
+    return error && "statusCode" in error ? error.statusCode : error;
+  }
+
+  async function filaDeFotoDeA() {
+    const { data, error } = await clienteA.from("fotos").select("*").eq("id", idFotoDeA);
+    expect(error).toBeNull();
+    return data!;
+  }
+
+  beforeAll(async () => {
+    // La tercera taquería por id: el trigger usa la primera, la calificación la segunda
+    // y la RLS de calificaciones las dos últimas.
+    const { data, error } = await clienteA.from("taquerias").select("id").order("id").range(2, 2).single();
+    expect(error).toBeNull();
+    taqueriaDeFotos = data!.id;
+  });
+
+  it("A puede subir y registrar una foto en su carpeta", async () => {
+    rutaDeA = rutaEnCarpetaDeA("png");
+    const { error: errorSubida } = await clienteA.storage.from("fotos").upload(rutaDeA, png());
+    expect(errorSubida).toBeNull();
+
+    const { data, error } = await clienteA
+      .from("fotos")
+      .insert({ taqueria_id: taqueriaDeFotos, ruta: rutaDeA })
+      .select()
+      .single();
+    expect(error).toBeNull();
+    expect(data!.user_id).toBe(usuarioA.id);
+    idFotoDeA = data!.id;
+  });
+
+  it("B no puede subir archivos a la carpeta de A", async () => {
+    const ruta = rutaEnCarpetaDeA("png");
+    const { error } = await clienteB.storage.from("fotos").upload(ruta, png());
+
+    expect(codigoStorage(error)).toBe(STORAGE_RLS);
+    expect(await existeComoA(ruta)).toBe(false);
+  });
+
+  it("B no puede borrar los archivos ni las filas de A", async () => {
+    // Como en las tablas, RLS no da error: simplemente no encuentra nada que borrar.
+    const { data: archivos, error: errorArchivo } = await clienteB.storage.from("fotos").remove([rutaDeA]);
+    expect(errorArchivo).toBeNull();
+    expect(archivos).toEqual([]);
+
+    const { data: filas, error: errorFila } = await clienteB.from("fotos").delete().eq("id", idFotoDeA).select();
+    expect(errorFila).toBeNull();
+    expect(filas).toEqual([]);
+
+    expect(await existeComoA(rutaDeA)).toBe(true);
+    expect(await filaDeFotoDeA()).toHaveLength(1);
+  });
+
+  it("B no puede registrar en fotos una ruta de la carpeta de A", async () => {
+    const { error } = await clienteB
+      .from("fotos")
+      .insert({ taqueria_id: taqueriaDeFotos, ruta: rutaEnCarpetaDeA("png") });
+
+    expect(error?.code).toBe(PERMISO_DENEGADO);
+  });
+
+  // Los dos rechazos siguientes suben con la sesión de A a su propia carpeta,
+  // para que el motivo sea el tipo o el tamaño y no RLS.
+  it("el bucket rechaza un .txt", async () => {
+    const ruta = rutaEnCarpetaDeA("txt");
+    const { error } = await clienteA.storage
+      .from("fotos")
+      .upload(ruta, new Blob(["hola"], { type: "text/plain" }), { contentType: "text/plain" });
+
+    expect(codigoStorage(error)).toBe(STORAGE_TIPO);
+    expect(await existeComoA(ruta)).toBe(false);
+  });
+
+  it("el bucket rechaza un archivo de más de 5 MB", async () => {
+    const ruta = rutaEnCarpetaDeA("png");
+    const grande = new Blob([new Uint8Array(5 * 1024 * 1024 + 1)], { type: "image/png" });
+    const { error } = await clienteA.storage.from("fotos").upload(ruta, grande);
+
+    expect(codigoStorage(error)).toBe(STORAGE_TAMANO);
+    expect(await existeComoA(ruta)).toBe(false);
+    // Subir 5 MB tarda más que los 5 segundos por defecto.
+  }, 30_000);
+
+  it("A puede borrar su foto y su fila", async () => {
+    const { data: archivos, error: errorArchivo } = await clienteA.storage.from("fotos").remove([rutaDeA]);
+    expect(errorArchivo).toBeNull();
+    expect(archivos).toHaveLength(1);
+
+    const { data: filas, error: errorFila } = await clienteA.from("fotos").delete().eq("id", idFotoDeA).select();
+    expect(errorFila).toBeNull();
+    expect(filas).toHaveLength(1);
+
+    expect(await existeComoA(rutaDeA)).toBe(false);
+    expect(await filaDeFotoDeA()).toEqual([]);
   });
 });

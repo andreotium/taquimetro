@@ -27,5 +27,6 @@ describe("ayudantes de prueba", () => {
       // Ya borrado, no puede abrir sesión.
       await expect(sesionComo(usuario)).rejects.toThrow();
     }
-  });
+    // Al correr en paralelo con la subida de 5 MB de tests/rls.test.ts, a veces pasa de los 5 s por defecto.
+  }, 15_000);
 });

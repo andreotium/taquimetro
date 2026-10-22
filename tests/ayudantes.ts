@@ -20,8 +20,8 @@ function variable(nombre: string) {
 // Sin guardar sesión ni refrescar el token: cada cliente vive solo en memoria y no deja timers abiertos.
 const opciones = { auth: { persistSession: false, autoRefreshToken: false } };
 
-// Llave secreta: solo crea y borra usuarios. Nunca se usa para las comprobaciones,
-// porque se salta RLS y la prueba pasaría siempre.
+// Llave secreta: solo crea y borra usuarios y limpia sus archivos. Nunca se usa para las
+// comprobaciones, porque se salta RLS y la prueba pasaría siempre.
 function clienteAdmin() {
   return createClient<Database>(variable("SUPABASE_URL"), variable("SUPABASE_SECRET_KEY"), opciones);
 }
@@ -50,6 +50,18 @@ export async function crearUsuario(nombre: NombreUsuario): Promise<UsuarioDePrue
 export async function borrarUsuario(usuario: UsuarioDePrueba) {
   const { error } = await clienteAdmin().auth.admin.deleteUser(usuario.id);
   if (error) throw new Error(`No se pudo borrar al usuario ${usuario.nombre}: ${error.message}`);
+}
+
+// Los archivos de Storage no se borran en cascada con el usuario. Lista su carpeta en vez de
+// recibir rutas, para limpiar también lo que una política rota haya dejado entrar.
+export async function borrarFotosDe(usuario: UsuarioDePrueba) {
+  const fotos = clienteAdmin().storage.from("fotos");
+  const { data, error } = await fotos.list(usuario.id);
+  if (error) throw new Error(`No se pudo listar la carpeta de ${usuario.nombre}: ${error.message}`);
+  if (data.length === 0) return;
+
+  const { error: errorBorrado } = await fotos.remove(data.map((archivo) => `${usuario.id}/${archivo.name}`));
+  if (errorBorrado) throw new Error(`No se pudieron borrar los archivos de ${usuario.nombre}: ${errorBorrado.message}`);
 }
 
 // Cliente con la llave pública y la sesión del usuario: RLS aplica como a cualquier persona.
