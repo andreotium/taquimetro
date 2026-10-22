@@ -83,3 +83,9 @@ Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto 
 17:20 Tarea 7.1, tiempo real. Un voto genera 20 avisos (el trigger reescribe las 20 filas), así que se agrupan en una ventana de 500 ms y el ranking se pide una sola vez. TDD: primero en rojo ("expected 0, got 20"), luego verde; ruptura a propósito quitando el candado de la ventana. Probé con dos ventanas (normal e incógnito): al calificar Los Cocuyos en una, la otra se reordenó sola (Cocuyos 4.04 arriba, El Torito 3.63) sin perder la taquería elegida. 48 pruebas en verde.
 
 17:40 Tarea 8.1. Pruebas de RLS de fotos: B no sube, no borra ni registra en la carpeta de A; el bucket rechaza un .txt (415) y un archivo de más de 5 MB (413). Los códigos se midieron antes de fijarlos. Ruptura a propósito: quité el límite de 5 MB en el SQL Editor y falló "expected null to be 413"; lo restauré. En la corrida siguiente falló la prueba de ayudantes por tiempo (5003 ms contra 5000); al repetirla tardó 3.3 s. Hipótesis: lentitud por correr pruebas en paralelo con la subida de 5 MB. Medí antes de concluir. 55 pruebas en verde.
+
+17:50 Tarea 8.2. Galería de fotos en el detalle, con subida y borrado: revisa tipo y tamaño antes de enviar, el bucket lo vuelve a revisar, y el botón "Borrar" solo aparece en las fotos propias. Probé a mano subir, borrar, rechazo de tipo y la vista sin sesión. Subí a 15 s el tiempo de la prueba de ayudantes. 68 pruebas en verde. Paso 5 de la guía completo. 
+
+Rupturas a propósito: con el límite a 6 MB, la prueba aceptó 5 MB + 1 byte; sin .single() en borrarFoto, B "borraba" la foto de A sin error (RLS la protegía, pero la app habría mostrado un éxito falso).
+
+Probé a mano: subir, borrar, vista sin sesión (incógnito) y celular. El explorador de archivos ya filtra a JPG y PNG (primera capa); la app y el bucket son la segunda y la tercera. Pendiente para mañana: Next.js muestra "3 Issues" en desarrollo.

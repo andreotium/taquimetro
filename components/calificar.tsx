@@ -15,11 +15,12 @@ import {
 import type { EstadoConsulta } from "@/lib/consulta";
 import { crearClienteNavegador } from "@/lib/supabase/cliente";
 
-const foco = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-talavera";
-const botonPrincipal = `rounded-sm bg-talavera px-4 py-2 font-bold text-white disabled:opacity-60 ${foco}`;
+// foco, botonPrincipal y alerta también los usa components/fotos.tsx.
+export const foco = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-talavera";
+export const botonPrincipal = `rounded-sm bg-talavera px-4 py-2 font-bold text-white disabled:opacity-60 ${foco}`;
 // Opción de un grupo de radios: el input queda oculto y la etiqueta se pinta al elegirla.
 const opcion = `flex h-11 min-w-11 cursor-pointer items-center justify-center rounded-sm border border-linea px-3 font-bold tabular-nums has-checked:border-talavera has-checked:bg-talavera has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-talavera`;
-const alerta = "rounded-sm bg-aviso-fondo px-3 py-2 font-bold text-aviso";
+export const alerta = "rounded-sm bg-aviso-fondo px-3 py-2 font-bold text-aviso";
 
 type Envio =
   | { estado: "inicio" }
