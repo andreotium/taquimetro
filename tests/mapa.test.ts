@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { ubicarTaquerias } from "../lib/mapa";
+import { movimientoHacia, ubicarTaquerias } from "../lib/mapa";
 
 function taqueria(id: number, latitud: number | null, longitud: number | null) {
   return { id, latitud, longitud };
@@ -58,5 +58,29 @@ describe("ubicarTaquerias", () => {
       expect(t.longitud).toBeGreaterThan(-99.4);
       expect(t.longitud).toBeLessThan(-98.9);
     }
+  });
+});
+
+describe("movimientoHacia", () => {
+  // En celular el mapa se oculta con display: none y Leaflet mide 0 × 0; flyTo divide
+  // entre ese tamaño y calcula NaN.
+  it("con el mapa oculto (0 × 0) salta sin animar, aunque el zoom esté lejos", () => {
+    expect(movimientoHacia({ ancho: 0, alto: 0, zoom: 12, sinMovimiento: false })).toBe("saltar");
+  });
+
+  it("con solo una medida en 0 también salta", () => {
+    expect(movimientoHacia({ ancho: 0, alto: 730, zoom: 12, sinMovimiento: false })).toBe("saltar");
+  });
+
+  it("visible y lejos, vuela", () => {
+    expect(movimientoHacia({ ancho: 390, alto: 730, zoom: 12, sinMovimiento: false })).toBe("volar");
+  });
+
+  it("visible y ya a nivel colonia, se desliza", () => {
+    expect(movimientoHacia({ ancho: 390, alto: 730, zoom: 15, sinMovimiento: false })).toBe("deslizar");
+  });
+
+  it("con movimiento reducido salta", () => {
+    expect(movimientoHacia({ ancho: 390, alto: 730, zoom: 12, sinMovimiento: true })).toBe("saltar");
   });
 });

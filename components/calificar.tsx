@@ -4,7 +4,7 @@ import { useEffect, useState, useSyncExternalStore, type FormEvent } from "react
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { Star, X } from "lucide-react";
-import { Alerta } from "@/components/alerta";
+import { Alerta, Confirmacion } from "@/components/alerta";
 import { mensajeErrorEnvio } from "@/lib/auth";
 import {
   guardarCalificacion,
@@ -81,7 +81,8 @@ export function Calificar({ taqueriaId }: { taqueriaId: number }) {
       {!abierto ? (
         <button type="button" onClick={() => setAbierto(true)} className={`self-start ${botonPrincipal}`}>
           <Star size={18} aria-hidden />
-          Calificar
+          {/* Con sesión: al cerrarla, lectura conserva el valor anterior. Mientras se lee, "Calificar". */}
+          {sesion && lectura?.estado === "ok" ? "Editar calificación" : "Calificar"}
         </button>
       ) : sesion ? (
         <FormularioCalificacion taqueriaId={taqueriaId} lectura={lectura} />
@@ -281,11 +282,7 @@ function CamposCalificacion({ taqueriaId, previa }: { taqueriaId: number; previa
         {guardado.estado === "guardando" ? "Guardando..." : "Guardar calificación"}
       </button>
 
-      {guardado.estado === "guardado" && (
-        <p role="status" className="text-lg font-semibold">
-          Calificación guardada
-        </p>
-      )}
+      {guardado.estado === "guardado" && <Confirmacion>Calificación guardada</Confirmacion>}
       {guardado.estado === "error" && <Alerta>{guardado.mensaje}</Alerta>}
     </form>
   );

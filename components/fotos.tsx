@@ -3,11 +3,14 @@
 import { useEffect, useState, type ChangeEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Camera } from "lucide-react";
-import { Alerta } from "@/components/alerta";
+import { Alerta, Confirmacion } from "@/components/alerta";
 import { botonPrincipal, botonTexto } from "@/components/calificar";
 import type { EstadoConsulta } from "@/lib/consulta";
 import { borrarFoto, leerFotos, mensajeErrorFoto, rutaNueva, subirFoto, validarArchivo, type Foto } from "@/lib/fotos";
 import { crearClienteNavegador } from "@/lib/supabase/cliente";
+
+// "Sí, borrar": el mismo botón de texto, en el rojo de error para que se note que no se deshace.
+const botonPeligro = botonTexto.replace("text-tinta", "text-error");
 
 type Envio =
   | { estado: "inicio" }
@@ -92,11 +95,7 @@ export function Fotos({ taqueriaId, nombre }: { taqueriaId: number; nombre: stri
         </div>
       )}
 
-      {envio.estado === "hecho" && (
-        <p role="status" className="text-lg font-semibold">
-          {envio.mensaje}
-        </p>
-      )}
+      {envio.estado === "hecho" && <Confirmacion>{envio.mensaje}</Confirmacion>}
       {envio.estado === "error" && <Alerta>{envio.mensaje}</Alerta>}
 
       {lectura === undefined ? (
@@ -126,7 +125,7 @@ export function Fotos({ taqueriaId, nombre }: { taqueriaId: number; nombre: stri
                     type="button"
                     onClick={() => (porBorrar === foto.id ? borrar(foto) : setPorBorrar(foto.id))}
                     disabled={enviando}
-                    className={botonTexto}
+                    className={porBorrar === foto.id ? botonPeligro : botonTexto}
                   >
                     {porBorrar === foto.id ? "Sí, borrar" : "Borrar"}
                   </button>

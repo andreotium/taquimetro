@@ -8,12 +8,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MapContainer, Marker, TileLayer, Tooltip, useMap } from "react-leaflet";
 import type { Taqueria } from "@/components/detalle";
 import { IconoTaco } from "@/components/icono-taco";
-import { ubicarTaquerias } from "@/lib/mapa";
+import { movimientoHacia, ubicarTaquerias, zoomColonia } from "@/lib/mapa";
 
 const centroCdmx: [number, number] = [19.4326, -99.1332];
 const margen: [number, number] = [24, 24];
-// Nivel colonia: al elegir desde más lejos, el mapa se acerca hasta aquí.
-const zoomColonia = 15;
 
 // Leaflet recibe el marcador como texto HTML: los íconos se convierten una sola vez.
 // Los estilos (.marcador y sus variantes) están en app/globals.css.
@@ -50,7 +48,8 @@ function prefiereSinMovimiento() {
 }
 
 // Al elegir una taquería, el mapa se desliza hasta ella. Si se ve desde lejos, además se acerca
-// a nivel colonia; si ya está cerca, conserva el zoom. Con movimiento reducido, salta sin animar.
+// a nivel colonia; si ya está cerca, conserva el zoom. Con movimiento reducido o con el mapa
+// oculto en celular, salta sin animar (ver movimientoHacia en lib/mapa.ts).
 function SeguirElegida({ elegida }: { elegida: [number, number] | null }) {
   const map = useMap();
   const lat = elegida?.[0];
@@ -58,13 +57,20 @@ function SeguirElegida({ elegida }: { elegida: [number, number] | null }) {
 
   useEffect(() => {
     if (lat === undefined || lng === undefined) return;
+    const tamano = map.getSize();
     const zoom = Math.max(map.getZoom(), zoomColonia);
-    if (prefiereSinMovimiento()) {
-      map.setView([lat, lng], zoom, { animate: false });
-    } else if (map.getZoom() < zoomColonia) {
-      map.flyTo([lat, lng], zoom, { duration: 0.6 });
-    } else {
-      map.panTo([lat, lng], { duration: 0.5 });
+    switch (
+      movimientoHacia({ ancho: tamano.x, alto: tamano.y, zoom: map.getZoom(), sinMovimiento: prefiereSinMovimiento() })
+    ) {
+      case "saltar":
+        map.setView([lat, lng], zoom, { animate: false });
+        break;
+      case "volar":
+        map.flyTo([lat, lng], zoom, { duration: 0.6 });
+        break;
+      case "deslizar":
+        map.panTo([lat, lng], { duration: 0.5 });
+        break;
     }
   }, [map, lat, lng]);
 

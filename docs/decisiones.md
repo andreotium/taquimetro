@@ -81,3 +81,8 @@ Las decisiones salieron de la entrevista con `/the-architect` del 20 de octubre 
 - Transiciones cortas al elegir taquería, desactivadas con `prefers-reduced-motion`.
 - Por qué: el mockup de Claude Design estaba pensado como app de celular y era difícil de entender.
 - Descartado: paleta azul talavera y amarillo maíz, y las tipografías Bricolage Grotesque y Atkinson Hyperlegible (tarea 4.3). CARTO Positron como mapa base: desde los términos del 29 de septiembre de 2026 pide una llave (sin ella muestra una marca de agua).
+
+## D13. Límites conocidos
+
+- Enlace de administración: el enlace que genera `auth.admin.generateLink` regresa con los tokens en `#access_token` y sin `code`. `/auth/callback` solo acepta `code` (flujo PKCE), así que muestra "El enlace venció o ya se usó" y los tokens quedan en la dirección. Solo ocurre en pruebas: el enlace que se pide desde el formulario de la app usa PKCE. No se arregla.
+- Empate visual: el ranking muestra el puntaje con dos decimales y ordena con el valor completo y, si es idéntico, por nombre (`lib/ranking.ts`). Dos taquerías pueden verse con el mismo número (por ejemplo 3.21) en lugares distintos. No se arregla.
