@@ -179,6 +179,7 @@ function Resumen({ taqueria: t }: { taqueria: Taqueria }) {
             <span className="font-semibold">{textoVotos(t.votos)}</span>
             {t.pocosVotos && <EtiquetaPocosVotos />}
           </p>
+          <p className="text-sm text-tenue">Ajustado por número de votos</p>
         </div>
       )}
 

@@ -127,6 +127,9 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
     setElegidaId(id);
     // En celular el detalle reemplaza la lista: se abre desde arriba.
     window.scrollTo({ top: 0 });
+    // En computadora, si se eligió desde el mapa, la lista baja hasta la fila. Si ya se ve, no se mueve;
+    // en celular la lista está oculta y no hace nada.
+    document.getElementById(`fila-${id}`)?.scrollIntoView({ block: "nearest" });
   }
 
   const resumen = { taquerias: taquerias.length, votos: taquerias.reduce((suma, t) => suma + t.votos, 0) };
@@ -169,7 +172,7 @@ export function Taquimetro({ taquerias }: { taquerias: Taqueria[] }) {
           </h2>
           <ol>
             {taquerias.map((t, i) => (
-              <li key={t.id} className="border-b border-linea">
+              <li key={t.id} id={`fila-${t.id}`} className="border-b border-linea">
                 <button
                   type="button"
                   onClick={() => elegir(t.id)}
