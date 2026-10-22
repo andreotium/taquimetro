@@ -68,8 +68,7 @@ export function Detalle({ taqueria, onVolver }: { taqueria: Taqueria; onVolver?:
         {t.alcaldia && <p className="mt-1 text-tenue">{t.alcaldia}</p>}
       </header>
 
-      {/* La key cierra el formulario al cambiar de taquería. */}
-      <Calificar key={t.id} taqueriaId={t.id} />
+      <Calificar taqueriaId={t.id} />
 
       {!t.agregadosEncontrados ? (
         <p role="status" className="text-lg">
@@ -79,8 +78,7 @@ export function Detalle({ taqueria, onVolver }: { taqueria: Taqueria; onVolver?:
         <Resumen taqueria={t} />
       )}
 
-      {/* La key borra los mensajes y vuelve a leer las fotos al cambiar de taquería. */}
-      <Fotos key={t.id} taqueriaId={t.id} nombre={t.nombre} />
+      <Fotos taqueriaId={t.id} nombre={t.nombre} />
     </article>
   );
 }

@@ -34,6 +34,9 @@ export function Calificar({ taqueriaId }: { taqueriaId: number }) {
   // undefined mientras se lee la sesión; null si no hay.
   const [sesion, setSesion] = useState<Session | null | undefined>(undefined);
   const [abierto, setAbierto] = useState(false);
+  // undefined mientras se lee.
+  const [lectura, setLectura] = useState<EstadoConsulta<CalificacionGuardada> | undefined>(undefined);
+  const usuarioId = sesion?.user.id;
 
   useEffect(() => {
     const supabase = crearClienteNavegador();
@@ -41,6 +44,13 @@ export function Calificar({ taqueriaId }: { taqueriaId: number }) {
     const { data } = supabase.auth.onAuthStateChange((_evento, nueva) => setSesion(nueva));
     return () => data.subscription.unsubscribe();
   }, []);
+
+  // Con sesión, se lee al abrir el detalle y no al tocar "Calificar": así el formulario sale al instante.
+  // Depende del id del usuario y no de la sesión, que cambia de objeto cada vez que se renueva el token.
+  useEffect(() => {
+    if (!usuarioId) return;
+    leerCalificacion(crearClienteNavegador(), taqueriaId).then(setLectura);
+  }, [usuarioId, taqueriaId]);
 
   if (sesion === undefined) return null;
 
@@ -53,7 +63,7 @@ export function Calificar({ taqueriaId }: { taqueriaId: number }) {
           Calificar
         </button>
       ) : sesion ? (
-        <FormularioCalificacion taqueriaId={taqueriaId} />
+        <FormularioCalificacion taqueriaId={taqueriaId} lectura={lectura} />
       ) : (
         <FormularioCorreo />
       )}
@@ -112,15 +122,14 @@ function FormularioCorreo() {
   );
 }
 
-// Lee la calificación del usuario antes de mostrar el formulario: si existe, se edita.
-function FormularioCalificacion({ taqueriaId }: { taqueriaId: number }) {
-  // undefined mientras se lee.
-  const [lectura, setLectura] = useState<EstadoConsulta<CalificacionGuardada> | undefined>(undefined);
-
-  useEffect(() => {
-    leerCalificacion(crearClienteNavegador(), taqueriaId).then(setLectura);
-  }, [taqueriaId]);
-
+// Espera la calificación del usuario antes de mostrar el formulario: si existe, se edita.
+function FormularioCalificacion({
+  taqueriaId,
+  lectura,
+}: {
+  taqueriaId: number;
+  lectura: EstadoConsulta<CalificacionGuardada> | undefined;
+}) {
   if (lectura === undefined) return <p className="text-tenue">Cargando tu calificación...</p>;
 
   // Sin formulario: un insert chocaría si la calificación sí existe y no se pudo leer.

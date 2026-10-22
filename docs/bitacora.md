@@ -89,3 +89,8 @@ Arquitectura con /the-architect. Sin Docker: pruebas contra un segundo proyecto 
 Rupturas a propósito: con el límite a 6 MB, la prueba aceptó 5 MB + 1 byte; sin .single() en borrarFoto, B "borraba" la foto de A sin error (RLS la protegía, pero la app habría mostrado un éxito falso).
 
 Probé a mano: subir, borrar, vista sin sesión (incógnito) y celular. El explorador de archivos ya filtra a JPG y PNG (primera capa); la app y el bucket son la segunda y la tercera. Pendiente para mañana: Next.js muestra "3 Issues" en desarrollo.
+
+Día 3
+09:30 Bug: al elegir taquerías se acumulaban bloques de "Sesión iniciada" y crecía el contador de issues. Usé systematic-debugging: Calificar y Fotos tenían la misma key en el mismo nivel, y React pisaba una con la otra al cambiar de taquería y nunca borraba el Calificar viejo. Empezó en la 8.2, cuando se agregó Fotos junto a Calificar. Solución: una sola key en el detalle completo. Aprendizaje: las 68 pruebas no lo detectaron porque no hay pruebas de componentes; lo encontró la prueba a mano.
+
+9:50 Mejoras al detalle. (1) El formulario de calificar aparece al instante: la calificación propia se lee al abrir el detalle, no al tocar el botón. (2) Bug visual con systematic-debugging: con sesión, la página se estiraba con un espacio blanco. Causa: los controles invisibles (sr-only) del formulario y de "Subir foto" se acomodaban contra la página entera porque la columna no era su contenedor. Arreglo: una sola clase, relative, en la columna del detalle.
