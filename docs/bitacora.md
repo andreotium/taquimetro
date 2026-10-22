@@ -103,3 +103,4 @@ Día 3
 
 11:30 Rediseño (5.4) terminado. El taco es taco-01 de Hugeicons (MIT), pegado como SVG sin instalar paquetes; la tortilla es propia porque ninguna librería la tiene. Descarté CARTO porque desde el 29/09 pide llave y me quedé con OpenStreetMap a color. Un espacio en blanco y un salto en el mapa resultaron ser la ventana de Playwright; en mi navegador todo se veía bien, así que no se tocó código.
 
+12:36 Paso 7, code review. Un subagente revisó todo main: nada crítico, 2 importantes y 8 menores. Con receiving-code-review atendí 8, uno a medias, y rechacé el hook de sesión porque no aporta al usuario. Tarea A: la base aceptaba rutas de fotos con ".." porque la política solo revisaba la primera carpeta. Prueba en rojo, migración con un check del formato UUID, db push con --dry-run primero, prueba en verde. 75/75.

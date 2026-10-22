@@ -15,6 +15,9 @@ import {
 // de otro tipo (por ejemplo, una columna obligatoria vacía) no haga pasar la prueba.
 const PERMISO_DENEGADO = "42501";
 
+// Código de Postgres para "no cumple una restricción check"; aquí, el formato de fotos.ruta.
+const RUTA_INVALIDA = "23514";
+
 // Códigos HTTP con que Storage rechaza una subida; mismo propósito que PERMISO_DENEGADO.
 const STORAGE_RLS = "403";
 const STORAGE_TIPO = "415";
@@ -27,6 +30,7 @@ const calificacionDeA = { salsa: 4, tortilla: 4, carne: 4, precio: 25, copia: tr
 const vivos: UsuarioDePrueba[] = [];
 
 let usuarioA: UsuarioDePrueba;
+let usuarioB: UsuarioDePrueba;
 let clienteA: SupabaseClient<Database>;
 let clienteB: SupabaseClient<Database>;
 let idCalificacion: number;
@@ -44,6 +48,7 @@ beforeAll(async () => {
   const [a, b] = await Promise.all((["A", "B"] as const).map(crearUsuario));
   vivos.push(a, b);
   usuarioA = a;
+  usuarioB = b;
   [clienteA, clienteB] = await Promise.all([sesionComo(a), sesionComo(b)]);
 
   // No hay taquerías de prueba: solo existen las 20 de la semilla y nadie puede insertar más.
@@ -208,6 +213,17 @@ describe("RLS de fotos", () => {
       .insert({ taqueria_id: taqueriaDeFotos, ruta: rutaEnCarpetaDeA("png") });
 
     expect(error?.code).toBe(PERMISO_DENEGADO);
+  });
+
+  // La política solo revisa la primera carpeta; la base además exige el formato que genera
+  // rutaNueva(). Si alguna entrara, sería fila de B y se iría en cascada al borrarlo.
+  it.each([
+    ["con ..", () => `${usuarioB.id}/../${usuarioA.id}/${randomUUID()}.png`],
+    ["que la app no genera", () => `${usuarioB.id}/foto.png`],
+  ])("B no puede registrar en fotos una ruta %s", async (_, ruta) => {
+    const { error } = await clienteB.from("fotos").insert({ taqueria_id: taqueriaDeFotos, ruta: ruta() });
+
+    expect(error?.code).toBe(RUTA_INVALIDA);
   });
 
   // Los dos rechazos siguientes suben con la sesión de A a su propia carpeta,
