@@ -50,8 +50,13 @@ export function mensajeErrorGuardado(error: { code?: string }): string {
       return "No se pudo guardar. Revisa tu conexión e intenta de nuevo.";
     case "23514":
       return "La base rechazó los valores: el precio va de 5 a 150 pesos y cada criterio del 1 al 5.";
-    case "42501":
+    // Token inválido o vencido.
+    case "PGRST301":
+    case "PGRST303":
       return "Tu sesión venció. Recarga la página y vuelve a entrar con tu correo.";
+    // Si la sesión se pierde, la petición llega como anónima y RLS responde esto mismo.
+    case "42501":
+      return "No tienes permiso o tu sesión venció. Vuelve a iniciar sesión.";
     case "23505":
       return "Ya tenías una calificación de esta taquería. Recarga la página para editarla.";
     default:

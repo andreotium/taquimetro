@@ -43,7 +43,7 @@ afterAll(async () => {
 });
 
 describe("trigger de agregados", () => {
-  it("suma el voto de C y lo quita al borrar a C", async () => {
+  it("suma el voto de C, lo recalcula al editarlo y lo quita al borrar a C", async () => {
     const antes = await leerAgregados();
 
     const { error } = await clienteC.from("calificaciones").insert({ taqueria_id: taqueria, ...calificacionDeC });
@@ -52,6 +52,19 @@ describe("trigger de agregados", () => {
     const conC = await leerAgregados();
     expect(conC.votos).toBe(antes.votos + 1);
     expect(conC.promedios).not.toEqual(antes.promedios);
+
+    // Todos los valores distintos de calificacionDeC; con .single(), un update que no toca filas da error.
+    const { error: errorEdicion } = await clienteC
+      .from("calificaciones")
+      .update({ salsa: 1, tortilla: 1, carne: 1, precio: 100, copia: true })
+      .eq("taqueria_id", taqueria)
+      .select("id")
+      .single();
+    expect(errorEdicion).toBeNull();
+
+    const editada = await leerAgregados();
+    expect(editada.votos).toBe(conC.votos);
+    expect(editada.promedios).not.toEqual(conC.promedios);
 
     // Borrar a C borra su calificación en cascada; el trigger debe recalcular.
     for (const usuario of vivos.splice(0)) await borrarUsuario(usuario);

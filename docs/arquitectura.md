@@ -128,15 +128,29 @@ El trigger necesita ver todas las calificaciones, no solo las del usuario que vo
 app/
   layout.tsx              estructura general y estilos
   page.tsx                página principal: ranking, mapa y detalle
+  error.tsx               error inesperado: mensaje en español y "Intentar de nuevo"
+  not-found.tsx           ruta que no existe: "No se encontró esta página"
   auth/callback/          ruta de regreso del login: inicia la sesión y redirige a /
 proxy.ts                  renueva la sesión antes de cada página y guarda la cookie (un Server Component no puede)
 components/               ranking, mapa (Leaflet), detalle, formulario de calificación, fotos, login
 lib/supabase/             clientes de @supabase/ssr para navegador y servidor (solo llave pública)
 supabase/
-  migrations/             una sola migración: tablas, RLS, GRANT, función, trigger, bucket, Realtime
+  migrations/             esquema inicial (tablas, RLS, GRANT, función, trigger, bucket, Realtime) y formato de fotos.ruta
   seed.sql                semilla: 20 taquerías y sus agregados en 0 (db push --include-seed)
   seed/datos.csv          las 20 taquerías
-tests/                    pruebas de Vitest (bayesiano, RLS, trigger, orden del ranking, errores, destino del login, calificación y agrupación de avisos)
+tests/                    pruebas de Vitest:
+  ayudantes.ts            crear y borrar usuarios de prueba, abrir sesiones y limpiar sus fotos
+  ayudantes.test.ts       los ayudantes crean a A, B y C, abren sus sesiones y los borran
+  bayesiano.test.ts       función bayesiana en la base
+  rls.test.ts             RLS de calificaciones, de la tabla fotos (incluye el formato de la ruta) y del bucket
+  trigger.test.ts         agregados al insertar, editar y borrar una calificación
+  ranking.test.ts         orden del ranking y etiqueta "pocos votos"
+  consulta.test.ts        estados "ok", "vacío", "no encontrado" y "error"
+  auth.test.ts            destino del login y mensajes de error del envío del correo
+  calificacion.test.ts    validación, mensajes de error, y leer y guardar contra Supabase
+  fotos.test.ts           validación, ruta, mensajes de error, y leer, subir y borrar contra Supabase
+  agrupar.test.ts         agrupación de avisos de Realtime
+  mapa.test.ts            taquerías con y sin coordenadas en el mapa
 .env.local                URL y llave pública de Supabase (ignorado por git)
 .env.example              nombres de las variables de .env.local, sin valores
 .env.test.local           URL, llave pública y llave secreta, solo para pruebas (ignorado por git, D3)
@@ -154,8 +168,8 @@ Vitest con supabase-js contra el proyecto real (D1, D10). Las pruebas crean tres
 | Prueba | Qué verifica | Cómo se rompe a propósito |
 | --- | --- | --- |
 | Puntaje bayesiano | Llamando a la función como `anon`, con m fijo, 1 voto de 5 queda debajo de 80 votos de 4.6 | Correrla con C = 0: el voto único de 5 gana y la prueba se pone en rojo |
-| RLS entre dos usuarios | B no lee ni edita la calificación de A; A no puede mover su calificación a otra taquería; nadie puede borrar una calificación; B no borra fotos de A, no sube a la carpeta de A ni registra en `fotos` una ruta de A; se rechaza un `.txt` y un archivo de más de 5 MB | Debilitar una política a mano en el SQL Editor, ver la prueba en rojo y restaurarla |
-| Trigger de agregados | Se leen los votos y promedios de una taquería; C la califica y los votos suben en 1 respecto a los de antes; al borrar a C, votos y promedios regresan a los valores de antes. Comparar contra el valor previo evita fallar si la taquería ya tenía votos reales | Quitar el borrado del trigger en el SQL Editor: los votos se quedan uno arriba y la prueba se pone en rojo |
+| RLS entre dos usuarios | B no lee ni edita la calificación de A; A no puede mover su calificación a otra taquería; nadie puede borrar una calificación; B no borra fotos de A, no sube a la carpeta de A ni registra en `fotos` una ruta de A; B tampoco registra una ruta con `..` ni una que la app no genera (restricción `fotos_ruta_formato`, código 23514); se rechaza un `.txt` y un archivo de más de 5 MB | Debilitar una política a mano en el SQL Editor, ver la prueba en rojo y restaurarla |
+| Trigger de agregados | Se leen los votos y promedios de una taquería; C la califica y los votos suben en 1 respecto a los de antes; C edita su calificación y los promedios cambian sin cambiar los votos; al borrar a C, votos y promedios regresan a los valores de antes. Comparar contra el valor previo evita fallar si la taquería ya tenía votos reales | Quitar el borrado del trigger en el SQL Editor: los votos se quedan uno arriba y la prueba se pone en rojo |
 | Enlace mágico | El flujo completo funciona en un teléfono real | Prueba manual, sin ruptura |
 
 Cada ruptura se hace una vez, a mano. André la anota en su bitácora.

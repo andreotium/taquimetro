@@ -4,7 +4,7 @@ import { useEffect, useState, type ChangeEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Camera } from "lucide-react";
 import { Alerta } from "@/components/alerta";
-import { botonPrincipal, foco } from "@/components/calificar";
+import { botonPrincipal, botonTexto } from "@/components/calificar";
 import type { EstadoConsulta } from "@/lib/consulta";
 import { borrarFoto, leerFotos, mensajeErrorFoto, rutaNueva, subirFoto, validarArchivo, type Foto } from "@/lib/fotos";
 import { crearClienteNavegador } from "@/lib/supabase/cliente";
@@ -24,6 +24,8 @@ export function Fotos({ taqueriaId, nombre }: { taqueriaId: number; nombre: stri
   // Al cambiar, vuelve a leer las fotos después de subir o borrar.
   const [version, setVersion] = useState(0);
   const [envio, setEnvio] = useState<Envio>({ estado: "inicio" });
+  // La foto que pide un segundo toque para borrarse; null si ninguna.
+  const [porBorrar, setPorBorrar] = useState<number | null>(null);
 
   useEffect(() => {
     const supabase = crearClienteNavegador();
@@ -56,6 +58,7 @@ export function Fotos({ taqueriaId, nombre }: { taqueriaId: number; nombre: stri
   }
 
   async function borrar(foto: Foto) {
+    setPorBorrar(null);
     setEnvio({ estado: "enviando", mensaje: "Borrando..." });
     const { error } = await borrarFoto(crearClienteNavegador(), foto);
     setEnvio(error ? { estado: "error", mensaje: mensajeErrorFoto(error, "borrar") } : { estado: "hecho", mensaje: "Foto borrada" });
@@ -116,15 +119,23 @@ export function Fotos({ taqueriaId, nombre }: { taqueriaId: number; nombre: stri
                 className="aspect-square w-full rounded-md bg-superficie object-cover ring-1 ring-linea"
               />
               {/* La base vuelve a revisar que sea tuya; esto solo esconde el botón en las ajenas. */}
+              {/* Dos toques: el mismo botón pasa de "Borrar" a "Sí, borrar", así el foco no se pierde. */}
               {sesion && foto.user_id === sesion.user.id && (
-                <button
-                  type="button"
-                  onClick={() => borrar(foto)}
-                  disabled={enviando}
-                  className={`self-start rounded-sm text-sm font-semibold text-tinta underline underline-offset-4 disabled:opacity-60 ${foco}`}
-                >
-                  Borrar
-                </button>
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  <button
+                    type="button"
+                    onClick={() => (porBorrar === foto.id ? borrar(foto) : setPorBorrar(foto.id))}
+                    disabled={enviando}
+                    className={botonTexto}
+                  >
+                    {porBorrar === foto.id ? "Sí, borrar" : "Borrar"}
+                  </button>
+                  {porBorrar === foto.id && (
+                    <button type="button" onClick={() => setPorBorrar(null)} className={botonTexto}>
+                      Cancelar
+                    </button>
+                  )}
+                </div>
               )}
             </li>
           ))}

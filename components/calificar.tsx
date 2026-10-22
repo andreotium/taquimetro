@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
-import { Star } from "lucide-react";
+import { Star, X } from "lucide-react";
 import { Alerta } from "@/components/alerta";
 import { mensajeErrorEnvio } from "@/lib/auth";
 import {
@@ -17,10 +17,12 @@ import {
 import type { EstadoConsulta } from "@/lib/consulta";
 import { crearClienteNavegador } from "@/lib/supabase/cliente";
 
-// foco y botonPrincipal también los usa components/fotos.tsx.
+// foco, botonPrincipal y botonTexto también los usa components/fotos.tsx.
 export const foco = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta";
 // El rojo salsa se usa poco: el botón principal es uno de sus pocos lugares.
 export const botonPrincipal = `inline-flex items-center gap-2 rounded-md bg-salsa px-4 py-2 font-semibold text-white hover:brightness-95 disabled:opacity-60 motion-safe:transition ${foco}`;
+// Botón de texto para acciones secundarias, como "Cerrar sesión" o "Borrar" una foto.
+export const botonTexto = `self-start rounded-sm text-sm font-semibold text-tinta underline underline-offset-4 disabled:opacity-60 ${foco}`;
 // Opción de un grupo de radios: el input queda oculto y la etiqueta se pinta en tinta al elegirla.
 const opcion = `flex h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border border-linea px-3 font-semibold tabular-nums hover:bg-superficie has-checked:border-tinta has-checked:bg-tinta has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-tinta motion-safe:transition-colors`;
 
@@ -38,6 +40,7 @@ export function Calificar({ taqueriaId }: { taqueriaId: number }) {
   const [abierto, setAbierto] = useState(false);
   // undefined mientras se lee.
   const [lectura, setLectura] = useState<EstadoConsulta<CalificacionGuardada> | undefined>(undefined);
+  const [errorSalida, setErrorSalida] = useState(false);
   const usuarioId = sesion?.user.id;
 
   useEffect(() => {
@@ -54,11 +57,26 @@ export function Calificar({ taqueriaId }: { taqueriaId: number }) {
     leerCalificacion(crearClienteNavegador(), taqueriaId).then(setLectura);
   }, [usuarioId, taqueriaId]);
 
+  // scope "local": cierra solo este dispositivo. onAuthStateChange pone la sesión en null aquí y en Fotos.
+  async function cerrarSesion() {
+    const { error } = await crearClienteNavegador().auth.signOut({ scope: "local" });
+    setErrorSalida(error !== null);
+    if (!error) setAbierto(false);
+  }
+
   if (sesion === undefined) return null;
 
   return (
     <section className="flex flex-col gap-4 border-t border-linea pt-6" aria-label="Calificar">
-      {sesion && <p className="text-tenue">Sesión iniciada como {sesion.user.email}</p>}
+      {sesion && (
+        <div className="flex flex-col gap-1">
+          <p className="text-tenue">Sesión iniciada como {sesion.user.email}</p>
+          <button type="button" onClick={cerrarSesion} className={botonTexto}>
+            Cerrar sesión
+          </button>
+        </div>
+      )}
+      {errorSalida && <Alerta>No se pudo cerrar la sesión. Intenta de nuevo.</Alerta>}
 
       {!abierto ? (
         <button type="button" onClick={() => setAbierto(true)} className={`self-start ${botonPrincipal}`}>
@@ -291,6 +309,7 @@ function leerLoginFallido() {
 export function AvisoEnlaceVencido() {
   // En el servidor no hay URL del navegador: no se muestra hasta leerla en el cliente.
   const visible = useSyncExternalStore(sinSuscripcion, leerLoginFallido, () => false);
+  const [cerrado, setCerrado] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -300,11 +319,19 @@ export function AvisoEnlaceVencido() {
     window.history.replaceState(null, "", url);
   }, [visible]);
 
-  if (!visible) return null;
+  if (!visible || cerrado) return null;
 
   return (
-    <div className="border-b border-linea px-4 py-3 lg:px-6">
-      <Alerta>El enlace venció o ya se usó. Pide uno nuevo.</Alerta>
+    <div className="flex items-start gap-2 border-b border-linea px-4 py-3 lg:px-6">
+      <Alerta className="flex-1">El enlace venció o ya se usó. Pide uno nuevo.</Alerta>
+      <button
+        type="button"
+        onClick={() => setCerrado(true)}
+        aria-label="Cerrar aviso"
+        className={`flex size-11 shrink-0 items-center justify-center rounded-md text-tenue hover:bg-superficie ${foco}`}
+      >
+        <X size={20} aria-hidden />
+      </button>
     </div>
   );
 }

@@ -50,12 +50,12 @@ Reglas:
 | 5.3 | **Hecha dentro de la 5.2.** El detalle (hecho en 4.3) refleja la calificación nueva después de guardar | `components/` | Tras calificar, sin recargar, el detalle muestra 1 voto, los promedios y "pocos votos" |
 | 5.4 | **Hecha.** Rediseño visual (D12): rojo salsa como único acento, dorado para la corona del #1, Geist como única tipografía, íconos de `lucide-react`, taco de Hugeicons y tortilla propia; encabezado con logo y conteo, ranking con corona y pastillas, detalle con tacómetro e íconos, errores con ícono y fondo rosado, mapa base en gris, marcadores con taco (corona en el #1) y desplazamiento suave hacia la elegida, que acerca si se ve desde lejos; el mapa en celular vuelve a encuadrar al hacerse visible; transiciones cortas que respetan `prefers-reduced-motion` | `app/layout.tsx`, `app/globals.css`, `app/page.tsx`, `components/`, `package.json` | Revisión con Playwright, con taquerías ya calificadas, a ancho de computadora y de celular, también con movimiento reducido |
 
-## Fase 6. Despliegue en Vercel
+## Fase 6. Despliegue en Vercel (hecha)
 
 | # | Qué se hace | Archivos | Cómo se comprueba |
 | --- | --- | --- | --- |
-| 6.1 | [André] Crear el proyecto en Vercel y poner URL y llave pública como variables de entorno | ninguno | El despliegue termina y la página muestra el ranking en producción |
-| 6.2 | [André] Registrar en Supabase las URLs exactas (localhost y dominio de producción) y la Site URL de producción | ninguno | Prueba manual: el enlace mágico funciona desde un teléfono real en producción |
+| 6.1 | **Hecha.** [André] Crear el proyecto en Vercel y poner URL y llave pública como variables de entorno | ninguno | El despliegue termina y la página muestra el ranking en producción |
+| 6.2 | **Hecha.** [André] Registrar en Supabase las URLs exactas (localhost y dominio de producción) y la Site URL de producción | ninguno | Prueba manual: el enlace mágico funciona desde un teléfono real en producción |
 
 ## Fase 7. Tiempo real
 

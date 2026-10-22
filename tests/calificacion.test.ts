@@ -66,10 +66,17 @@ describe("mensajeErrorGuardado", () => {
     expect(mensajeErrorGuardado({})).toBe("No se pudo guardar. Revisa tu conexión e intenta de nuevo.");
   });
 
-  it("con 42501 (permiso denegado), pide volver a entrar", () => {
+  // Si la sesión se pierde, la petición llega como anónima y RLS responde 42501.
+  it("con 42501 (permiso denegado), dice que no hay permiso o que la sesión venció", () => {
     expect(mensajeErrorGuardado({ code: "42501" })).toBe(
-      "Tu sesión venció. Recarga la página y vuelve a entrar con tu correo.",
+      "No tienes permiso o tu sesión venció. Vuelve a iniciar sesión.",
     );
+  });
+
+  it("con PGRST301 o PGRST303 (token inválido o vencido), dice que la sesión venció", () => {
+    const mensaje = "Tu sesión venció. Recarga la página y vuelve a entrar con tu correo.";
+    expect(mensajeErrorGuardado({ code: "PGRST301" })).toBe(mensaje);
+    expect(mensajeErrorGuardado({ code: "PGRST303" })).toBe(mensaje);
   });
 
   it("con 23505 (ya existía), pide recargar para editarla", () => {
